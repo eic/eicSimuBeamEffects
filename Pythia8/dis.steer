@@ -8,32 +8,47 @@ Main:numberOfEvents = 1000000
 /*
 Beam Parameters
 */
-/*
+
 Beams:frameType = 2
 Beams:idA = 2212
 Beams:idB = 11
 
 Beams:eA = 275
 Beams:eB = 18
-*/
 
+/*
 Beams:frameType = 3
 Beams:idA = 2212
 Beams:idB = 11
 
-Beams:pxA = 6.872
+Beams:pxA = 6.8742839
 Beams:pyA = 0.
-Beams:pzA = 274.914
+Beams:pzA = 274.9140670
 
 Beams:pxB = 0.
 Beams:pyB = 0.
 Beams:pzB = -18.0
-
+*/
 
 Beams:allowMomentumSpread = on
-Beams:sigmapxA = 0.5
-Beams:sigmapyA = 0.5
-Beams:sigmapzA = 0.0
+
+Beams:sigmapxA = 0.000150
+Beams:sigmapyA = 0.000150
+Beams:sigmapzA = 0.0001
+
+Beams:sigmapxB = 0.000202
+Beams:sigmapyB = 0.000187
+Beams:sigmapzB = 0.0001
+
+/*
+Beams:sigmapxA = 0.0
+Beams:sigmapyA = 0.0
+Beams:sigmapzA = 0.0001
+
+Beams:sigmapxB = 0.0
+Beams:sigmapyB = 0.0
+Beams:sigmapzB = 0.0001
+*/
 
 Beams:allowVertexSpread = on
 Beams:sigmaVertexX = 0.0
