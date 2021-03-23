@@ -37,10 +37,10 @@ HEPMC_DIR = $(EICDIRECTORY)
 #PythiaDIS.o : PythiaDIS.cxx CustomPythia8ToHepMC3.h
 #	$(CXX) $(CXXFLAGS) -c PythiaDIS.cxx -o PythiaDIS.o -I$(HEPMC_DIR)/include -I.
 
-runBeamShape.exe: PythiaBeamShape.o
-	$(CXX) PythiaBeamShape.o -o runBeamShape.exe $(LDFLAGS) 
+runBeamShape.exe: PythiaBeamShape.o eicBeamShape.o
+	$(CXX) PythiaBeamShape.o eicBeamShape.o -o runBeamShape.exe $(LDFLAGS) 
 
-PythiaBeamShape.o : PythiaBeamShape.cxx 
+PythiaBeamShape.o : PythiaBeamShape.cxx eicBeamShape.h
 	$(CXX) $(CXXFLAGS) -c PythiaBeamShape.cxx -o PythiaBeamShape.o -I.
 
 runBeamShapeHepMC.exe: PythiaBeamShapeHepMC.o
@@ -48,6 +48,9 @@ runBeamShapeHepMC.exe: PythiaBeamShapeHepMC.o
 
 PythiaBeamShapeHepMC.o : PythiaBeamShapeHepMC.cxx 
 	$(CXX) $(CXXFLAGS) -c PythiaBeamShapeHepMC.cxx -o PythiaBeamShapeHepMC.o -I$(HEPMC_DIR)/include -I.
+
+eicBeamShape.o: eicBeamShape.cxx
+	$(CXX) $(CXXFLAGS) -c eicBeamShape.cxx -o eicBeamShape.o
 
 clean :
 	rm -vf *.o *.exe *~

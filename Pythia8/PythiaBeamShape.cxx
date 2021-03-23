@@ -3,6 +3,7 @@
 
 #include "Pythia8/Pythia.h"
 #include "Pythia8/BeamShape.h"
+#include "eicBeamShape.h"
 
 
 #include<iostream>
@@ -20,6 +21,7 @@ using std::string;
 
 using namespace Pythia8;
 
+/*
 // A derived class to set beam momentum and interaction vertex spread. See main23.cc
 class MyBeamShape : public BeamShape {
 
@@ -52,14 +54,14 @@ protected:
   double mLeptonCrabSize;
 
 };
-
+*/
 
 // Set the two beam momentum deviations and the beam vertex.
 // Note that momenta are in units of GeV and vertices in mm,
 // always with c = 1, so that e.g. time is in mm/c.
 
-void MyBeamShape::pick() {
-
+//void MyBeamShape::pick() {
+  /*
   // Reset all values.
   deltaPxA = deltaPyA = deltaPzA = deltaPxB = deltaPyB = deltaPzB
     = vertexX = vertexY = vertexZ = vertexT = 0.;
@@ -155,6 +157,7 @@ void MyBeamShape::pick() {
 	  deltaPyB += (mLeptonBeamEnergy + tmpPzB)*TMath::Sin(div);
 	}
     }
+  */
 	
   /*
   // Set beam A transverse momentum deviation by a two-dimensional Gaussian.
@@ -256,7 +259,7 @@ void MyBeamShape::pick() {
   }
   */
 
-}
+//}
 
 
 int main(int argc, char* argv[])
@@ -322,7 +325,7 @@ int main(int argc, char* argv[])
   Pythia8::Event &event = p8.event;
 
   // A class to generate beam parameters according to own parametrization.
-  BeamShapePtr myBeamShape = make_shared<MyBeamShape>(275.0,18.0,0.025,0.0030,-0.0015);
+  BeamShapePtr myBeamShape = make_shared<eicBeamShape>(275.0,18.0,0.025,0.0030,-0.0015);
 
   // Hand pointer to Pythia.
   // If you comment this out you get internal Gaussian-style implementation.
