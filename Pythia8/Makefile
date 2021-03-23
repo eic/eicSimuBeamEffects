@@ -44,10 +44,10 @@ PythiaBeamShape.o : PythiaBeamShape.cxx
 	$(CXX) $(CXXFLAGS) -c PythiaBeamShape.cxx -o PythiaBeamShape.o -I.
 
 runBeamShapeHepMC.exe: PythiaBeamShapeHepMC.o
-	$(CXX) PythiaBeamShapeHepMC.o -o runBeamShapeHepMC.exe $(LDFLAGS) 
+	$(CXX) PythiaBeamShapeHepMC.o -o runBeamShapeHepMC.exe $(LDFLAGS) -L$(HEPMC_DIR)/lib -L$(HEPMC_DIR)/lib64 $(LDFLAGS) -lHepMC3
 
 PythiaBeamShapeHepMC.o : PythiaBeamShapeHepMC.cxx 
-	$(CXX) $(CXXFLAGS) -c PythiaBeamShapeHepMC.cxx -o PythiaBeamShapeHepMC.o -I.
+	$(CXX) $(CXXFLAGS) -c PythiaBeamShapeHepMC.cxx -o PythiaBeamShapeHepMC.o -I$(HEPMC_DIR)/include -I.
 
 clean :
 	rm -vf *.o *.exe *~

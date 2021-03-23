@@ -2,7 +2,7 @@
 Steering file for photoproduction events
 */
 
-Main:numberOfEvents = 10000
+Main:numberOfEvents = 1000
 
 
 /*
