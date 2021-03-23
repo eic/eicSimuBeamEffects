@@ -15,7 +15,7 @@ LDFLAGS     += -L$(PYTHIA8)/lib -lpythia8
 
 #all : PythiaHepMC
 
-all: runBeamShape.exe
+all: runBeamShape.exe runBeamShapeHepMC.exe
 
 HEPMC_DIR = $(EICDIRECTORY)
 
@@ -43,5 +43,11 @@ runBeamShape.exe: PythiaBeamShape.o
 PythiaBeamShape.o : PythiaBeamShape.cxx 
 	$(CXX) $(CXXFLAGS) -c PythiaBeamShape.cxx -o PythiaBeamShape.o -I.
 
+runBeamShapeHepMC.exe: PythiaBeamShapeHepMC.o
+	$(CXX) PythiaBeamShapeHepMC.o -o runBeamShapeHepMC.exe $(LDFLAGS) 
+
+PythiaBeamShapeHepMC.o : PythiaBeamShapeHepMC.cxx 
+	$(CXX) $(CXXFLAGS) -c PythiaBeamShapeHepMC.cxx -o PythiaBeamShapeHepMC.o -I.
+
 clean :
-	rm -vf PythiaHepMC *.o *.exe *~
+	rm -vf *.o *.exe *~
