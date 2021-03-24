@@ -64,27 +64,38 @@ int main(int argc, char* argv[])
 
   // Particle Quantities
   TH1D *partPtHist = new TH1D("partPt","",500,0.,50.);
-  TH1D *partEtaHist = new TH1D("partEta","",100,-5.,5.);
+  TH1D *partEtaHist = new TH1D("partEta","",400,-10.,10.);
   TH1D *partPhiHist = new TH1D("partPhi","",100,-1.0*TMath::Pi(),TMath::Pi());
 
-  TH2D *partPhiVsEtaHist = new TH2D("partPhiVsEta","",100,-5.,5.,100,-1.0*TMath::Pi(),TMath::Pi());
-  TH2D *partPhiVsQ2Hist = new TH2D("partPhiVsQ2","",25,0.,5.,100,-1.0*TMath::Pi(),TMath::Pi());
+  TH2D *partPhiVsEtaHist = new TH2D("partPhiVsEta","",400,-10.,10.,100,-1.0*TMath::Pi(),TMath::Pi());
+  TH2D *partEtaVsQ2Hist = new TH2D("partEtaVsQ2","",50,0.,5.,400,-10.,10.);
+  TH2D *partPhiVsQ2Hist = new TH2D("partPhiVsQ2","",50,0.,5.,100,-1.0*TMath::Pi(),TMath::Pi());
+
+  TH2D *partStatusVsEtaHist = new TH2D("partStatusVsEta","",400,-10.,10.,200,0.,200.);
 
   // Hi Pt
   TH1D *partPtHiHist = new TH1D("partPtHi","",500,0.,50.);
-  TH1D *partEtaHiHist = new TH1D("partEtaHi","",100,-5.,5.);
+  TH1D *partEtaHiHist = new TH1D("partEtaHi","",400,-10.,10.);
   TH1D *partPhiHiHist = new TH1D("partPhiHi","",100,-1.0*TMath::Pi(),TMath::Pi());
 
-  TH2D *partPhiVsEtaHiHist = new TH2D("partPhiVsEtaHi","",100,-5.,5.,100,-1.0*TMath::Pi(),TMath::Pi());
-  TH2D *partPhiVsQ2HiHist = new TH2D("partPhiVsQ2Hi","",25,0.,5.,100,-1.0*TMath::Pi(),TMath::Pi());
+  TH2D *partPhiVsEtaHiHist = new TH2D("partPhiVsEtaHi","",400,-10.,10.,100,-1.0*TMath::Pi(),TMath::Pi());
+  TH2D *partEtaVsQ2HiHist = new TH2D("partEtaVsQ2Hi","",50,0.,5.,400,-10.,10.);
+  TH2D *partPhiVsQ2HiHist = new TH2D("partPhiVsQ2Hi","",50,0.,5.,100,-1.0*TMath::Pi(),TMath::Pi());
+
+  TH2D *partStatusVsEtaHiHist = new TH2D("partStatusVsEtaHi","",400,-10.,10.,200,0.,200.);
 
   // "Jet" Quantities
   TH2D *jetEtaVsP = new TH2D("jetEtaVsP","",200,0.,200.,100,-5.,5.);
 
   TH2D *jetQ2VsP = new TH2D("jetQ2VsP","",200,0.,200.,100,0.,5.);
 
+  TH1D *jetPtHist = new TH1D("jetPt","",500,0.,50.);
   TH1D *jetEtaHist = new TH1D("jetEta","",100,-5.,5.);
   TH1D *jetPhiHist = new TH1D("jetPhi","",100,-1.0*TMath::Pi(),TMath::Pi());
+
+  TH2D *jetPhiVsEtaHist = new TH2D("jetPhiVsEta","",400,-10.,10.,100,-1.0*TMath::Pi(),TMath::Pi());
+  TH2D *jetEtaVsQ2Hist = new TH2D("jetEtaVsQ2","",50,0.,5.,400,-10.,10.);
+  TH2D *jetPhiVsQ2Hist = new TH2D("jetPhiVsQ2","",50,0.,5.,100,-1.0*TMath::Pi(),TMath::Pi());
 
   // "Jet" - Electron Quantities
   TH1D *jetElecPhiHist = new TH1D("jetElecPhi","",100,-1.0*TMath::Pi(),TMath::Pi());
@@ -164,6 +175,8 @@ int main(int argc, char* argv[])
       double elecPhi = event[6].phi();
       double jetKtPhi = event[8].phi();
 
+      //if(Q2 < 10.0) cout << "Low Q2: " << Q2 << endl;
+
       // Event Level
       q2Hist->Fill(std::log10(Q2));
       yHist->Fill(std::log10(y));
@@ -177,14 +190,17 @@ int main(int argc, char* argv[])
 	  double partEta = p8.event[i].eta();
 	  double partPhi = p8.event[i].phi();
 
-	  if(partFin && partEta>-3.5 && partEta<3.5 && y<0.95 && y>0.01 && i > 7)
+	  if(partFin && partEta>-10.0 && partEta<10.0 && y<0.95 && y>0.01 && i > 7)
 	    {
 	      partPtHist->Fill(partPt);
 	      partPhiHist->Fill(partPhi);
 	      partEtaHist->Fill(partEta);
 
 	      partPhiVsEtaHist->Fill(partEta,partPhi);
+	      partEtaVsQ2Hist->Fill(std::log10(Q2),partEta);
 	      partPhiVsQ2Hist->Fill(std::log10(Q2),partPhi);
+
+	      partStatusVsEtaHist->Fill(partEta,p8.event[i].status());
 
 	      if(partPt > 1.0)
 		{
@@ -193,20 +209,28 @@ int main(int argc, char* argv[])
 		  partEtaHiHist->Fill(partEta);
 		  
 		  partPhiVsEtaHiHist->Fill(partEta,partPhi);
+		  partEtaVsQ2HiHist->Fill(std::log10(Q2),partEta);
 		  partPhiVsQ2HiHist->Fill(std::log10(Q2),partPhi);
+
+		  partStatusVsEtaHiHist->Fill(partEta,p8.event[i].status());
 		}
 	    }
 	}
       //cout << endl;
 
-      if(y < 0.95 && y > 0.01 && jetP > 10.0)
+      if(y < 0.95 && y > 0.01 && jetP > 0.0)
 	{
 	  jetEtaVsP->Fill(jetP,jetEta);
 
 	  jetQ2VsP->Fill(jetP,std::log10(Q2));
 
+	  jetPtHist->Fill(jetPt);
 	  jetEtaHist->Fill(jetEta);
 	  jetPhiHist->Fill(jetPhi);
+
+	  jetPhiVsEtaHist->Fill(jetEta,jetPhi);
+	  jetEtaVsQ2Hist->Fill(std::log10(Q2),jetEta);
+	  jetPhiVsQ2Hist->Fill(std::log10(Q2),jetPhi);
 
 	  jetElecPhiHist->Fill(jetPhi - elecPhi - TMath::Pi());
 	  jetKtElecPhiHist->Fill(jetKtPhi - elecPhi - TMath::Pi());

@@ -44,6 +44,9 @@ CondorFile
 *.pdf
 *.eps
 
+# Steering Files
+*.steer
+
 # Directories
 output/
 rootFiles
