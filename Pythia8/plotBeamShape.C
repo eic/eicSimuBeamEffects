@@ -24,12 +24,12 @@ int plotBeamShape()
   TString rootHistFnameE;
   TString rootHistFnameF;
 
-  rootHistFnameA="rootFiles/testDefault.hist.root";
+  rootHistFnameA="rootFiles/testDefault_new.hist.root";
   rootHistFnameB="rootFiles/testXing.hist.root";
   rootHistFnameC="rootFiles/testCrab.hist.root";
   rootHistFnameD="rootFiles/testDiv.hist.root";
   rootHistFnameE="rootFiles/testCrabDiv.hist.root";
-  rootHistFnameF="rootFiles/testAll.hist.root";
+  rootHistFnameF="rootFiles/testAll_new.hist.root";
   
   fa=new TFile(rootHistFnameA);
   assert(fa->IsOpen());
@@ -396,4 +396,276 @@ void plotShapes()
   hPartKin[3][5]->SetLineColor(kRed);
   hPartKin[3][0]->SetTitle("Particle Phi (pT > 1.0);Phi");
   hPartKin[3][0]->GetYaxis()->SetRangeUser(0,20000.0);
+}
+
+
+void plotPartKinematics()
+{
+  c[0]=new TCanvas("c0","Particle Phi Vs Eta",800,600);
+  c[1]=new TCanvas("c1","Particle Phi and Eta Projections",800,600);
+  c[2]=new TCanvas("c2","Particle Phi in Eta Slices",800,600);
+  c[3]=new TCanvas("c3","Particle Status Vs Eta",800,600);
+  c[4]=new TCanvas("c4","Particle Eta in Status Slices",800,600);
+  //c[5]=new TCanvas("c5","Hadron Beam XYZ",800,600);
+  //c[6]=new TCanvas("c6","Lepton Beam XYZ",800,600);
+  //c[7]=new TCanvas("c7","Particle Kinematics",800,600);
+
+  c[0]->Clear();
+  c[0]->Divide(2,2);
+
+  c[1]->Clear();
+  c[1]->Divide(2,2);
+
+  c[2]->Clear();
+  c[2]->Divide(2,2);
+
+  c[3]->Clear();
+  c[3]->Divide(2,2);
+
+  c[4]->Clear();
+  c[4]->Divide(2,2);
+
+  //c[5]->Clear();
+  //c[5]->Divide(2,2);
+
+  //c[6]->Clear();
+  //c[6]->Divide(2,2);
+
+  //c[7]->Clear();
+  //c[7]->Divide(2,2);
+
+  TH2D *hPhiVsEta[4];
+  TH2D *hStatusVsEta[4];
+
+  // Phi Vs Eta
+  hPhiVsEta[0]=(TH2D *)fa->Get("partPhiVsEta");
+  hPhiVsEta[1]=(TH2D *)fa->Get("partPhiVsEtaHi");
+  hPhiVsEta[2]=(TH2D *)ff->Get("partPhiVsEta");
+  hPhiVsEta[3]=(TH2D *)ff->Get("partPhiVsEtaHi");
+
+  // Status Vs Eta
+  hStatusVsEta[0]=(TH2D *)fa->Get("partStatusVsEta");
+  hStatusVsEta[1]=(TH2D *)fa->Get("partStatusVsEtaHi");
+  hStatusVsEta[2]=(TH2D *)ff->Get("partStatusVsEta");
+  hStatusVsEta[3]=(TH2D *)ff->Get("partStatusVsEtaHi");
+
+  // Projections
+  TH1D *pPhiFull[4];
+  TH1D *pEtaFull[4];
+  TH1D *pPhiEtaSlice[4][4];
+  TH1D *pEtaStatusSlice[4][3];
+  for(int i=0; i<4; i++)
+    {
+      pPhiFull[i] = hPhiVsEta[i]->ProjectionY(Form("p0_%d",i),1,400);
+      pEtaFull[i] = hPhiVsEta[i]->ProjectionX(Form("p1_%d",i),1,100);
+
+      pPhiEtaSlice[i][0] = hPhiVsEta[i]->ProjectionY(Form("p2_%d",i),160,180);
+      pPhiEtaSlice[i][1] = hPhiVsEta[i]->ProjectionY(Form("p3_%d",i),200,220);
+      pPhiEtaSlice[i][2] = hPhiVsEta[i]->ProjectionY(Form("p4_%d",i),240,260);
+      pPhiEtaSlice[i][3] = hPhiVsEta[i]->ProjectionY(Form("p5_%d",i),280,300);
+
+      pEtaStatusSlice[i][0] = hStatusVsEta[i]->ProjectionX(Form("p6_%d",i),61,66);
+      pEtaStatusSlice[i][1] = hStatusVsEta[i]->ProjectionX(Form("p7_%d",i),81,86);
+      pEtaStatusSlice[i][2] = hStatusVsEta[i]->ProjectionX(Form("p8_%d",i),91,96);
+    }
+
+
+  // Titles
+  char titles0[4][100];
+  sprintf(titles0[0],"Default Particle Phi Vs Eta;Eta;Phi");
+  sprintf(titles0[1],"Default Particle Phi Vs Eta (pT > 1 GeV);Eta;Phi");
+  sprintf(titles0[2],"All Effects Particle Phi Vs Eta;Eta;Phi");
+  sprintf(titles0[3],"All Effects Particle Phi Vs Eta (pT > 1 GeV);Eta;Phi");
+
+  char titles1[4][100];
+  sprintf(titles1[0],"Default Particle Status Vs Eta;Eta;Status");
+  sprintf(titles1[1],"Default Particle Status Vs Eta (pT > 1 GeV);Eta;Status");
+  sprintf(titles1[2],"All Effects Particle Status Vs Eta;Eta;Status");
+  sprintf(titles1[3],"All Effects Particle Status Vs Eta (pT > 1 GeV);Eta;Status");
+
+  // Lines
+  TLine *l00a = new TLine(-2.0,-1.0*TMath::Pi(),-2.0,TMath::Pi());
+  TLine *l00b = new TLine(-1.0,-1.0*TMath::Pi(),-1.0,TMath::Pi());
+  TLine *l01a = new TLine(0.0,-1.0*TMath::Pi(),0.0,TMath::Pi());
+  TLine *l01b = new TLine(1.0,-1.0*TMath::Pi(),1.0,TMath::Pi());
+  TLine *l02a = new TLine(2.0,-1.0*TMath::Pi(),2.0,TMath::Pi());
+  TLine *l02b = new TLine(3.0,-1.0*TMath::Pi(),3.0,TMath::Pi());
+  TLine *l03a = new TLine(4.0,-1.0*TMath::Pi(),4.0,TMath::Pi());
+  TLine *l03b = new TLine(5.0,-1.0*TMath::Pi(),5.0,TMath::Pi());
+
+  for(int i=0; i<4; i++)
+    {
+      // Part Phi Vs Eta
+      c[0]->cd(i+1);
+      hPhiVsEta[i]->Draw("COLZ");
+      hPhiVsEta[i]->SetTitle(Form("%s",titles0[i]));
+      gPad->SetLogz();
+
+      if(i<2)
+	{
+	  l00a->Draw("SAME");
+	  l00b->Draw("SAME");
+	  l00a->SetLineColor(kBlue);
+	  l00b->SetLineColor(kBlue);
+	  l01a->Draw("SAME");
+	  l01b->Draw("SAME");
+	  l01a->SetLineColor(kRed);
+	  l01b->SetLineColor(kRed);
+	  l02a->Draw("SAME");
+	  l02b->Draw("SAME");
+	  l02a->SetLineColor(kGreen+2);
+	  l02b->SetLineColor(kGreen+2);
+	  l03a->Draw("SAME");
+	  l03b->Draw("SAME");
+	  l03a->SetLineColor(kBlack);
+	  l03b->SetLineColor(kBlack);
+	}
+
+      // Particle Status Vs Eta
+      c[3]->cd(i+1);
+      hStatusVsEta[i]->Draw("COLZ");
+      hStatusVsEta[i]->SetTitle(Form("%s",titles1[i]));
+      gPad->SetLogz();
+    }
+
+  // Eta Phi Projections
+  c[1]->cd(1);
+  pPhiFull[0]->Draw("HIST");
+  pPhiFull[0]->SetLineColor(kBlue);
+  pPhiFull[2]->Draw("HISTSAME");
+  pPhiFull[2]->SetLineColor(kRed);
+  pPhiFull[0]->SetTitle("Particle Phi: All Eta;Phi");
+  pPhiFull[0]->GetYaxis()->SetRangeUser(0,600000);
+  c[1]->cd(2);
+  pEtaFull[0]->Draw("HIST");
+  pEtaFull[0]->SetLineColor(kBlue);
+  pEtaFull[2]->Draw("HISTSAME");
+  pEtaFull[2]->SetLineColor(kRed);
+  pEtaFull[0]->SetTitle("Particle Eta: All Phi;Eta");
+  pEtaFull[0]->GetYaxis()->SetRangeUser(0,400000);
+  c[1]->cd(3);
+  pPhiFull[1]->Draw("HIST");
+  pPhiFull[1]->SetLineColor(kBlue);
+  pPhiFull[3]->Draw("HISTSAME");
+  pPhiFull[3]->SetLineColor(kRed);
+  pPhiFull[1]->SetTitle("Particle Phi (pT > 1 GeV): All Eta;Phi");
+  pPhiFull[1]->GetYaxis()->SetRangeUser(0,250000);
+  c[1]->cd(4);
+  pEtaFull[1]->Draw("HIST");
+  pEtaFull[1]->SetLineColor(kBlue);
+  pEtaFull[3]->Draw("HISTSAME");
+  pEtaFull[3]->SetLineColor(kRed);
+  pEtaFull[1]->SetTitle("Particle Eta (pT > 1 GeV): All Phi;Eta");
+  pEtaFull[1]->GetYaxis()->SetRangeUser(1,500000);
+  gPad->SetLogy();
+  
+  TLegend *leg1;
+  leg1 = new TLegend(0.15,0.85,0.5,0.70);
+  leg1->SetFillColor(0);
+  leg1->SetBorderSize(1);
+  //leg22->SetTextFont(63);
+  //leg22->SetTextSize(30);
+  leg1->AddEntry(pEtaFull[1],"Default","l");
+  leg1->AddEntry(pEtaFull[3],"All Effects","l");
+  leg1->Draw();
+  
+  // Particle Phi Eta Slices
+  c[2]->cd(1);
+  pPhiEtaSlice[2][0]->Draw("HIST");
+  pPhiEtaSlice[2][0]->SetLineColor(kBlue);
+  pPhiEtaSlice[2][1]->Draw("HISTSAME");
+  pPhiEtaSlice[2][1]->SetLineColor(kRed);
+  pPhiEtaSlice[2][2]->Draw("HISTSAME");
+  pPhiEtaSlice[2][2]->SetLineColor(kGreen+2);
+  pPhiEtaSlice[2][3]->Draw("HISTSAME");
+  pPhiEtaSlice[2][3]->SetLineColor(kBlack);
+  pPhiEtaSlice[2][0]->SetTitle("All Effects Particle Phi in Eta Slices;Phi");
+  pPhiEtaSlice[2][0]->GetYaxis()->SetRangeUser(500,500000);
+  gPad->SetLogy();
+
+  TLegend *leg2a;
+  leg2a = new TLegend(0.15,0.35,0.45,0.20);
+  leg2a->SetFillColor(0);
+  leg2a->SetBorderSize(1);
+  //leg22->SetTextFont(63);
+  //leg22->SetTextSize(30);
+  leg2a->AddEntry(pPhiEtaSlice[2][0],"-2 < #eta < -1","l");
+  leg2a->AddEntry(pPhiEtaSlice[2][1],"0 < #eta < 1","l");
+  leg2a->Draw();
+
+  TLegend *leg2b;
+  leg2b = new TLegend(0.55,0.35,0.85,0.20);
+  leg2b->SetFillColor(0);
+  leg2b->SetBorderSize(1);
+  //leg22->SetTextFont(63);
+  //leg22->SetTextSize(30);
+  leg2b->AddEntry(pPhiEtaSlice[2][2],"2 < #eta < 3","l");
+  leg2b->AddEntry(pPhiEtaSlice[2][3],"4 < #eta < 5","l");
+  leg2b->Draw();
+
+  c[2]->cd(2);
+  pPhiEtaSlice[3][0]->Draw("HIST");
+  pPhiEtaSlice[3][0]->SetLineColor(kBlue);
+  pPhiEtaSlice[3][1]->Draw("HISTSAME");
+  pPhiEtaSlice[3][1]->SetLineColor(kRed);
+  pPhiEtaSlice[3][2]->Draw("HISTSAME");
+  pPhiEtaSlice[3][2]->SetLineColor(kGreen+2);
+  pPhiEtaSlice[3][3]->Draw("HISTSAME");
+  pPhiEtaSlice[3][3]->SetLineColor(kBlack);
+  pPhiEtaSlice[3][0]->SetTitle("All Effects Particle Phi in Eta Slices (pT > 1 GeV);Phi");
+  pPhiEtaSlice[3][0]->GetYaxis()->SetRangeUser(1,500000);
+  gPad->SetLogy();
+
+  // Particle Eta in Status Slices
+  c[4]->cd(1);
+  pEtaStatusSlice[0][0]->Draw("HIST");
+  pEtaStatusSlice[0][0]->SetLineColor(kBlue);
+  pEtaStatusSlice[0][1]->Draw("HISTSAME");
+  pEtaStatusSlice[0][1]->SetLineColor(kRed);
+  pEtaStatusSlice[0][2]->Draw("HISTSAME");
+  pEtaStatusSlice[0][2]->SetLineColor(kGreen+2);
+  pEtaStatusSlice[0][0]->SetTitle("Default Particle Eta: Status Breakdown;Eta");
+  pEtaStatusSlice[0][0]->GetYaxis()->SetRangeUser(1,300000);
+  gPad->SetLogy();
+  c[4]->cd(2);
+  pEtaStatusSlice[1][0]->Draw("HIST");
+  pEtaStatusSlice[1][0]->SetLineColor(kBlue);
+  pEtaStatusSlice[1][1]->Draw("HISTSAME");
+  pEtaStatusSlice[1][1]->SetLineColor(kRed);
+  pEtaStatusSlice[1][2]->Draw("HISTSAME");
+  pEtaStatusSlice[1][2]->SetLineColor(kGreen+2);
+  pEtaStatusSlice[1][0]->SetTitle("Default Particle Eta: Status Breakdown (pT > 1 GeV);Eta");
+  pEtaStatusSlice[1][0]->GetYaxis()->SetRangeUser(1,30000);
+  gPad->SetLogy();
+  c[4]->cd(3);
+  pEtaStatusSlice[2][0]->Draw("HIST");
+  pEtaStatusSlice[2][0]->SetLineColor(kBlue);
+  pEtaStatusSlice[2][1]->Draw("HISTSAME");
+  pEtaStatusSlice[2][1]->SetLineColor(kRed);
+  pEtaStatusSlice[2][2]->Draw("HISTSAME");
+  pEtaStatusSlice[2][2]->SetLineColor(kGreen+2);
+  pEtaStatusSlice[2][0]->SetTitle("All Effects Particle Eta: Status Breakdown;Eta");
+  pEtaStatusSlice[2][0]->GetYaxis()->SetRangeUser(1,500000);
+  gPad->SetLogy();
+  c[4]->cd(4);
+  pEtaStatusSlice[3][0]->Draw("HIST");
+  pEtaStatusSlice[3][0]->SetLineColor(kBlue);
+  pEtaStatusSlice[3][1]->Draw("HISTSAME");
+  pEtaStatusSlice[3][1]->SetLineColor(kRed);
+  pEtaStatusSlice[3][2]->Draw("HISTSAME");
+  pEtaStatusSlice[3][2]->SetLineColor(kGreen+2);
+  pEtaStatusSlice[3][0]->SetTitle("All Effects Particle Eta: Status Breakdown (pT > 1 GeV);Eta");
+  pEtaStatusSlice[3][0]->GetYaxis()->SetRangeUser(1,300000);
+  gPad->SetLogy();
+
+  TLegend *leg4;
+  leg4 = new TLegend(0.15,0.85,0.40,0.60);
+  leg4->SetFillColor(0);
+  leg4->SetBorderSize(1);
+  //leg22->SetTextFont(63);
+  //leg22->SetTextSize(30);
+  leg4->AddEntry(pEtaStatusSlice[3][0],"Beam Remnant","l");
+  leg4->AddEntry(pEtaStatusSlice[3][1],"Hadronization","l");
+  leg4->AddEntry(pEtaStatusSlice[3][2],"Decay","l");
+  leg4->Draw();
 }
