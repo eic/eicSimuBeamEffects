@@ -192,6 +192,7 @@ int main(int argc, char* argv[])
       double jetPhi = event[5].phi();
       double jetP = event[5].pAbs();
       double elecPhi = event[6].phi();
+      double jetKtEta = event[8].eta();
       double jetKtPhi = event[8].phi();
 
       //if(Q2 < 10.0) cout << "Low Q2: " << Q2 << endl;
@@ -299,8 +300,8 @@ int main(int argc, char* argv[])
 
 	      if(jets_akt_lab_no[jn].pt() > 5.0)
 		{
-		  jetEtaVsEtaHist->Fill(jetEta,fJetEta);
-		  jetPhiVsPhiHist->Fill(jetPhi,fJetPhi);
+		  jetEtaVsEtaHist->Fill(jetKtEta,fJetEta);
+		  jetPhiVsPhiHist->Fill(jetKtPhi,fJetPhi);
 
 		  jetPhiVsEtaHist->Fill(fJetEta,fJetPhi);
 
