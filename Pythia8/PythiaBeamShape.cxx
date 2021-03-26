@@ -5,6 +5,7 @@
 #include "Pythia8/BeamShape.h"
 #include "eicBeamShape.h"
 
+#include "fastjet/ClusterSequence.hh"
 
 #include<iostream>
 using std::cout;
@@ -18,8 +19,10 @@ using std::string;
 #include "TH1.h"
 #include "TH2.h"
 #include "TMath.h"
+#include "TVector2.h"
 
 using namespace Pythia8;
+using namespace fastjet;
 
 
 int main(int argc, char* argv[])
@@ -85,22 +88,34 @@ int main(int argc, char* argv[])
   TH2D *partStatusVsEtaHiHist = new TH2D("partStatusVsEtaHi","",400,-10.,10.,200,0.,200.);
 
   // "Jet" Quantities
-  TH2D *jetEtaVsP = new TH2D("jetEtaVsP","",200,0.,200.,100,-5.,5.);
+  TH2D *pJetEtaVsP = new TH2D("pJetEtaVsP","",200,0.,200.,100,-5.,5.);
 
-  TH2D *jetQ2VsP = new TH2D("jetQ2VsP","",200,0.,200.,100,0.,5.);
+  TH2D *pJetQ2VsP = new TH2D("pJetQ2VsP","",200,0.,200.,100,0.,5.);
 
+  TH1D *pJetPtHist = new TH1D("pJetPt","",500,0.,50.);
+  TH1D *pJetEtaHist = new TH1D("pJetEta","",100,-5.,5.);
+  TH1D *pJetPhiHist = new TH1D("pJetPhi","",100,-1.0*TMath::Pi(),TMath::Pi());
+
+  TH2D *pJetPhiVsEtaHist = new TH2D("pJetPhiVsEta","",400,-10.,10.,100,-1.0*TMath::Pi(),TMath::Pi());
+  TH2D *pJetEtaVsQ2Hist = new TH2D("pJetEtaVsQ2","",50,0.,5.,400,-10.,10.);
+  TH2D *pJetPhiVsQ2Hist = new TH2D("pJetPhiVsQ2","",50,0.,5.,100,-1.0*TMath::Pi(),TMath::Pi());
+
+  // "Jet" - Electron Quantities
+  TH1D *pJetElecPhiHist = new TH1D("pJetElecPhi","",100,-1.0*TMath::Pi(),TMath::Pi());
+  TH1D *pJetKtElecPhiHist = new TH1D("pJetKtElecPhi","",100,-1.0*TMath::Pi(),TMath::Pi());
+  TH1D *pJetKtElecPhiAbsHist = new TH1D("pJetKtElecPhiAbs","",100,-1.0*TMath::Pi(),TMath::Pi());
+
+  // True Jet Quantities
   TH1D *jetPtHist = new TH1D("jetPt","",500,0.,50.);
   TH1D *jetEtaHist = new TH1D("jetEta","",100,-5.,5.);
   TH1D *jetPhiHist = new TH1D("jetPhi","",100,-1.0*TMath::Pi(),TMath::Pi());
 
-  TH2D *jetPhiVsEtaHist = new TH2D("jetPhiVsEta","",400,-10.,10.,100,-1.0*TMath::Pi(),TMath::Pi());
-  TH2D *jetEtaVsQ2Hist = new TH2D("jetEtaVsQ2","",50,0.,5.,400,-10.,10.);
-  TH2D *jetPhiVsQ2Hist = new TH2D("jetPhiVsQ2","",50,0.,5.,100,-1.0*TMath::Pi(),TMath::Pi());
+  TH2D *jetEtaVsEtaHist = new TH2D("jetEtaVsEta","",100,-5.,5.,100,-5.,5.);
+  TH2D *jetPhiVsPhiHist = new TH2D("jetPhiVsPhi","",100,-1.0*TMath::Pi(),TMath::Pi(),100,-1.0*TMath::Pi(),TMath::Pi());
 
-  // "Jet" - Electron Quantities
-  TH1D *jetElecPhiHist = new TH1D("jetElecPhi","",100,-1.0*TMath::Pi(),TMath::Pi());
-  TH1D *jetKtElecPhiHist = new TH1D("jetKtElecPhi","",100,-1.0*TMath::Pi(),TMath::Pi());
-  TH1D *jetKtElecPhiAbsHist = new TH1D("jetKtElecPhiAbs","",100,-1.0*TMath::Pi(),TMath::Pi());
+  TH2D *jetPhiVsPhiCutHist = new TH2D("jetPhiVsPhiCut","",100,-1.0*TMath::Pi(),TMath::Pi(),100,-1.0*TMath::Pi(),TMath::Pi());
+
+  TH2D *jetPhiVsEtaHist = new TH2D("jetPhiVsEta","",100,-5.,5.,100,-1.0*TMath::Pi(),TMath::Pi());
 
 
   // Set Up Pythia Event
@@ -140,6 +155,10 @@ int main(int argc, char* argv[])
       //cout << setprecision(10) << ev << " " << p8.process[1].px() << " " << p8.process[1].py() << " " << p8.process[1].pz() << " " << p8.process[1].e() << endl;
       //cout << setprecision(10) << ev << " " << p8.process[2].px() << " " << p8.process[2].py() << " " << p8.process[2].pz() << " " << p8.process[2].e() << endl;
       //cout << endl;
+
+      // Create FastJet Particle Containers
+      vector<PseudoJet> particlesNoCut;
+      //vector<PseudoJet> particlesCut;
 
       // Beam Shape
       eCM->Fill(eCMnow - eCMnom);
@@ -190,6 +209,11 @@ int main(int argc, char* argv[])
 	  double partEta = p8.event[i].eta();
 	  double partPhi = p8.event[i].phi();
 
+	  double px = p8.event[i].px();
+	  double py = p8.event[i].py();
+	  double pz = p8.event[i].pz();
+	  double E = p8.event[i].e();
+
 	  if(partFin && partEta>-10.0 && partEta<10.0 && y<0.95 && y>0.01 && i > 7)
 	    {
 	      partPtHist->Fill(partPt);
@@ -215,27 +239,81 @@ int main(int argc, char* argv[])
 		  partStatusVsEtaHiHist->Fill(partEta,p8.event[i].status());
 		}
 	    }
+
+	  // Populate FastJet
+	  if(partFin && partEta>-4.0 && partEta<4.0 && y<0.95 && y>0.01 && i > 7)
+	    {
+	      // No pT Cuts Particles for FastJet
+	      fastjet::PseudoJet pNo(px,py,pz,E);
+	      pNo.set_user_index(i);
+	      particlesNoCut.push_back(pNo);
+	    }
 	}
       //cout << endl;
 
       if(y < 0.95 && y > 0.01 && jetP > 0.0)
 	{
-	  jetEtaVsP->Fill(jetP,jetEta);
+	  pJetEtaVsP->Fill(jetP,jetEta);
 
-	  jetQ2VsP->Fill(jetP,std::log10(Q2));
+	  pJetQ2VsP->Fill(jetP,std::log10(Q2));
 
-	  jetPtHist->Fill(jetPt);
-	  jetEtaHist->Fill(jetEta);
-	  jetPhiHist->Fill(jetPhi);
+	  pJetPtHist->Fill(jetPt);
+	  pJetEtaHist->Fill(jetEta);
+	  pJetPhiHist->Fill(jetPhi);
 
-	  jetPhiVsEtaHist->Fill(jetEta,jetPhi);
-	  jetEtaVsQ2Hist->Fill(std::log10(Q2),jetEta);
-	  jetPhiVsQ2Hist->Fill(std::log10(Q2),jetPhi);
+	  pJetPhiVsEtaHist->Fill(jetEta,jetPhi);
+	  pJetEtaVsQ2Hist->Fill(std::log10(Q2),jetEta);
+	  pJetPhiVsQ2Hist->Fill(std::log10(Q2),jetPhi);
 
-	  jetElecPhiHist->Fill(jetPhi - elecPhi - TMath::Pi());
-	  jetKtElecPhiHist->Fill(jetKtPhi - elecPhi - TMath::Pi());
-	  jetKtElecPhiAbsHist->Fill(TMath::Abs(jetKtPhi - elecPhi - TMath::Pi()));
+	  pJetElecPhiHist->Fill(jetPhi - elecPhi - TMath::Pi());
+	  pJetKtElecPhiHist->Fill(jetKtPhi - elecPhi - TMath::Pi());
+	  pJetKtElecPhiAbsHist->Fill(TMath::Abs(jetKtPhi - elecPhi - TMath::Pi()));
 	}
+
+      // Cluster and Analyze Jets
+      // Loop Over Jet Radii
+      double R[2] = {1.0,0.4};
+      for(int rad=0; rad<1; rad++)
+	{
+	  // Define Jet
+	  JetDefinition jet_def_akt(antikt_algorithm,R[rad]);
+
+	  // Cluster in Lab Frame
+	  ClusterSequence cs_akt_lab_no(particlesNoCut, jet_def_akt);
+
+	  // Min Jet Pt
+	  double ptmin = 1.0;
+
+	  // List of Jets
+	  vector<PseudoJet> jets_akt_lab_no = sorted_by_pt(cs_akt_lab_no.inclusive_jets(ptmin));
+
+	  // Loop Over Jets and Analyze
+	  for(unsigned int jn=0; jn<jets_akt_lab_no.size(); jn++)
+	    {
+	      double fJetEta = jets_akt_lab_no[jn].eta();
+	      double fJetPhi = TVector2::Phi_mpi_pi(jets_akt_lab_no[jn].phi());
+
+	      jetPtHist->Fill(jets_akt_lab_no[jn].pt());
+	      jetEtaHist->Fill(fJetEta);
+	      jetPhiHist->Fill(fJetPhi);
+
+	      if(jets_akt_lab_no[jn].pt() > 5.0)
+		{
+		  jetEtaVsEtaHist->Fill(jetEta,fJetEta);
+		  jetPhiVsPhiHist->Fill(jetPhi,fJetPhi);
+
+		  jetPhiVsEtaHist->Fill(fJetEta,fJetPhi);
+
+		  if(fJetEta < 3.5) jetPhiVsPhiCutHist->Fill(jetPhi,fJetPhi);
+		}
+
+	      //if(jets_akt_lab_no[jn].pt() < 5.0) continue; // Relax Pt cut to see sub-threshold behavior
+	      //if(jets_akt_lab_no[jn].eta() > 3.5-R[rad]) continue;
+	      
+	      //vector<PseudoJet> constituents = jets_akt_lab_no[jn].constituents();
+	    }
+	}
+
     }
 
   // List Statistics  
