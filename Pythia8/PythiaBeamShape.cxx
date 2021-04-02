@@ -25,6 +25,102 @@ using namespace Pythia8;
 using namespace fastjet;
 
 
+int etaBin(double eta)
+{
+  int index = -1;
+  if(eta > -3.0 && eta < -2.5) index = 0;
+  if(eta > -2.5 && eta < -2.0) index = 1;
+  if(eta > -2.0 && eta < -1.5) index = 2;
+  if(eta > -1.5 && eta < -1.0) index = 3;
+  if(eta > -1.0 && eta < -0.5) index = 4;
+  if(eta > -0.5 && eta < 0.0) index = 5;
+  if(eta > 0.0 && eta < 0.5) index = 6;
+  if(eta > 0.5 && eta < 1.0) index = 7;
+  if(eta > 1.0 && eta < 1.5) index = 8;
+  if(eta > 1.5 && eta < 2.0) index = 9;
+  if(eta > 2.0 && eta < 2.5) index = 10;
+  if(eta > 2.5 && eta < 3.0) index = 11;
+  if(eta > 3.0 && eta < 3.5) index = 12;
+  if(eta > 3.5 && eta < 4.0) index = 13;
+  if(eta > 4.0 && eta < 4.5) index = 14;
+  if(eta > 4.5 && eta < 5.0) index = 15;
+
+  return index;
+}
+
+
+int xQ2Bin(double logx, double logq2)
+{
+  // Find Q2
+  int q2Index = -1;
+  int xIndex = -1;
+  int xOffset = -1;
+  if(logq2 > 0.5 && logq2 < 1.0)
+    {
+      q2Index = 0;
+      xOffset = 0;
+    }
+  if(logq2 > 1.0 && logq2 < 1.5)
+    {
+      q2Index = 7;
+      xOffset = 0;
+    }
+  if(logq2 > 1.5 && logq2 < 2.0)
+    {
+      q2Index = 14;
+      xOffset = 1;
+    }
+  if(logq2 > 2.0 && logq2 < 2.5)
+    {
+      q2Index = 20;
+      xOffset = 2;
+    }
+  if(logq2 > 2.5 && logq2 < 3.0)
+    {
+      q2Index = 25;
+      xOffset = 3;
+    }
+  if(logq2 > 3.0 && logq2 < 3.5)
+    {
+      q2Index = 29;
+      xOffset = 4;
+    }
+  if(logq2 > 3.5 && logq2 < 4.0)
+    {
+      q2Index = 32;
+      xOffset = 5;
+    }
+  if(logq2 > 4.0 && logq2 < 4.5)
+    {
+      q2Index = 34;
+      xOffset = 6;
+    }
+
+  // Set X
+  if(logx > -3.5 && logx < -3.0) xIndex = 0;
+  if(logx > -3.0 && logx < -2.5) xIndex = 1;
+  if(logx > -2.5 && logx < -2.0) xIndex = 2;
+  if(logx > -2.0 && logx < -1.5) xIndex = 3;
+  if(logx > -1.5 && logx < -1.0) xIndex = 4;
+  if(logx > -1.0 && logx < -0.5) xIndex = 5;
+  if(logx > -0.5 && logx < 0.0) xIndex = 6;
+
+  if(q2Index == -1 || xOffset == -1 || logx == -1) 
+    {
+      cout << "BADINDEX" << endl;
+      cout << logq2 << " " << logx << endl;
+      cout << q2Index << " " << xOffset << " " << logx << endl;
+      cout << endl;
+
+      return -1;
+    }
+    
+  // Output Index
+  double index = -1;
+  return q2Index + (xIndex - xOffset);
+}
+
+
 int main(int argc, char* argv[])
 {
   //const char* steerFile = 
@@ -69,6 +165,8 @@ int main(int argc, char* argv[])
   TH1D *partPtHist = new TH1D("partPt","",500,0.,50.);
   TH1D *partEtaHist = new TH1D("partEta","",400,-10.,10.);
   TH1D *partPhiHist = new TH1D("partPhi","",100,-1.0*TMath::Pi(),TMath::Pi());
+
+  TH2D *partPtVsEtaHist = new TH2D("partPtVsEta","",400,-10.,10.,500,0.,50.);
 
   TH2D *partPhiVsEtaHist = new TH2D("partPhiVsEta","",400,-10.,10.,100,-1.0*TMath::Pi(),TMath::Pi());
   TH2D *partEtaVsQ2Hist = new TH2D("partEtaVsQ2","",50,0.,5.,400,-10.,10.);
@@ -116,6 +214,23 @@ int main(int argc, char* argv[])
   TH2D *jetPhiVsPhiCutHist = new TH2D("jetPhiVsPhiCut","",100,-1.0*TMath::Pi(),TMath::Pi(),100,-1.0*TMath::Pi(),TMath::Pi());
 
   TH2D *jetPhiVsEtaHist = new TH2D("jetPhiVsEta","",100,-5.,5.,100,-1.0*TMath::Pi(),TMath::Pi());
+
+  TH2D *jetEventQ2VsXHist = new TH2D("jetEventQ2VsX","",12,-6.,0.,10,0.,5.);
+  TH1D *jetEventXHist = new TH1D("jetEventXHist","",30,-6.,0.);
+
+  TH2D *jetPhiVsEtaQ2xHist[35];
+  for(int i=0; i<35; i++)
+    {
+      jetPhiVsEtaQ2xHist[i] = new TH2D(Form("jetPhiVsEtaQ2x_%d",i),"",100,-5.,5.,100,-1.0*TMath::Pi(),TMath::Pi());
+    }
+
+  TH2D *jetQ2VsXEtaHist[16];
+  TH2D *jetPhiVsPhiEtaHist[16];
+  for(int i=0; i<16; i++)
+    {
+      jetQ2VsXEtaHist[i] = new TH2D(Form("jetQ2VsXEta_%d",i),"",24,-6.,0.,20,0.,5.);
+      jetPhiVsPhiEtaHist[i] = new TH2D(Form("jetPhiVsPhiEta_%d",i),"",100,-1.0*TMath::Pi(),TMath::Pi(),100,-1.0*TMath::Pi(),TMath::Pi());
+    }
 
 
   // Set Up Pythia Event
@@ -221,6 +336,8 @@ int main(int argc, char* argv[])
 	      partPhiHist->Fill(partPhi);
 	      partEtaHist->Fill(partEta);
 
+	      partPtVsEtaHist->Fill(partEta,partPt);
+
 	      partPhiVsEtaHist->Fill(partEta,partPhi);
 	      partEtaVsQ2Hist->Fill(std::log10(Q2),partEta);
 	      partPhiVsQ2Hist->Fill(std::log10(Q2),partPhi);
@@ -269,6 +386,11 @@ int main(int argc, char* argv[])
 	  pJetElecPhiHist->Fill(jetPhi - elecPhi - TMath::Pi());
 	  pJetKtElecPhiHist->Fill(jetKtPhi - elecPhi - TMath::Pi());
 	  pJetKtElecPhiAbsHist->Fill(TMath::Abs(jetKtPhi - elecPhi - TMath::Pi()));
+
+	  jetEventQ2VsXHist->Fill(std::log10(x),std::log10(Q2));
+	  jetEventXHist->Fill(std::log10(x));
+	  //cout << "x = " << std::log10(x) << " Q2 = " << std::log10(Q2) << " Bin = " << jetEventQ2VsXHist->FindBin(std::log10(x),std::log10(Q2)) << endl;
+	  //cout << "x = " << std::log10(x) << " Bin = " << jetEventXHist->FindBin(std::log10(x)) << endl;
 	}
 
       // Cluster and Analyze Jets
@@ -305,7 +427,19 @@ int main(int argc, char* argv[])
 
 		  jetPhiVsEtaHist->Fill(fJetEta,fJetPhi);
 
-		  if(fJetEta < 3.5) jetPhiVsPhiCutHist->Fill(jetPhi,fJetPhi);
+		  if(fJetEta < 2.5) jetPhiVsPhiCutHist->Fill(jetPhi,fJetPhi);
+
+		  int xQ2Index = xQ2Bin(std::log10(x),std::log10(Q2));
+
+		  if(xQ2Index > -1) 
+		    jetPhiVsEtaQ2xHist[xQ2Index]->Fill(fJetEta,fJetPhi);
+
+		  int etaIndex = etaBin(fJetEta);
+		  if(etaIndex > -1)
+		    {
+		      jetQ2VsXEtaHist[etaIndex]->Fill(std::log10(x),std::log10(Q2));
+		      jetPhiVsPhiEtaHist[etaIndex]->Fill(jetKtPhi,fJetPhi);
+		    }
 		}
 
 	      //if(jets_akt_lab_no[jn].pt() < 5.0) continue; // Relax Pt cut to see sub-threshold behavior

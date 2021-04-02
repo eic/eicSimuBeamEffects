@@ -24,12 +24,12 @@ int plotBeamShape()
   TString rootHistFnameE;
   TString rootHistFnameF;
 
-  rootHistFnameA="rootFiles/testDefault_new.hist.root";
+  rootHistFnameA="testDefault_new.hist.root";
   rootHistFnameB="rootFiles/testXing.hist.root";
   rootHistFnameC="rootFiles/testCrab.hist.root";
   rootHistFnameD="rootFiles/testDiv.hist.root";
   rootHistFnameE="rootFiles/testCrabDiv.hist.root";
-  rootHistFnameF="rootFiles/testAll_new.hist.root";
+  rootHistFnameF="testAll_new.hist.root";
   
   fa=new TFile(rootHistFnameA);
   assert(fa->IsOpen());
@@ -406,7 +406,7 @@ void plotPartKinematics()
   c[2]=new TCanvas("c2","Particle Phi in Eta Slices",800,600);
   c[3]=new TCanvas("c3","Particle Status Vs Eta",800,600);
   c[4]=new TCanvas("c4","Particle Eta in Status Slices",800,600);
-  //c[5]=new TCanvas("c5","Hadron Beam XYZ",800,600);
+  c[5]=new TCanvas("c5","Particle Pt Vs Eta",800,600);
   //c[6]=new TCanvas("c6","Lepton Beam XYZ",800,600);
   //c[7]=new TCanvas("c7","Particle Kinematics",800,600);
 
@@ -425,8 +425,8 @@ void plotPartKinematics()
   c[4]->Clear();
   c[4]->Divide(2,2);
 
-  //c[5]->Clear();
-  //c[5]->Divide(2,2);
+  c[5]->Clear();
+  c[5]->Divide(2,2);
 
   //c[6]->Clear();
   //c[6]->Divide(2,2);
@@ -436,6 +436,7 @@ void plotPartKinematics()
 
   TH2D *hPhiVsEta[4];
   TH2D *hStatusVsEta[4];
+  TH2D *hPtVsEta[2];
 
   // Phi Vs Eta
   hPhiVsEta[0]=(TH2D *)fa->Get("partPhiVsEta");
@@ -449,11 +450,16 @@ void plotPartKinematics()
   hStatusVsEta[2]=(TH2D *)ff->Get("partStatusVsEta");
   hStatusVsEta[3]=(TH2D *)ff->Get("partStatusVsEtaHi");
 
+  // Pt Vs Eta
+  hPtVsEta[0]=(TH2D *)fa->Get("partPtVsEta");
+  hPtVsEta[1]=(TH2D *)ff->Get("partPtVsEta");
+
   // Projections
   TH1D *pPhiFull[4];
   TH1D *pEtaFull[4];
   TH1D *pPhiEtaSlice[4][4];
   TH1D *pEtaStatusSlice[4][3];
+  TH1D *pPtEtaSlice[2][2];
   for(int i=0; i<4; i++)
     {
       pPhiFull[i] = hPhiVsEta[i]->ProjectionY(Form("p0_%d",i),1,400);
@@ -467,6 +473,12 @@ void plotPartKinematics()
       pEtaStatusSlice[i][0] = hStatusVsEta[i]->ProjectionX(Form("p6_%d",i),61,66);
       pEtaStatusSlice[i][1] = hStatusVsEta[i]->ProjectionX(Form("p7_%d",i),81,86);
       pEtaStatusSlice[i][2] = hStatusVsEta[i]->ProjectionX(Form("p8_%d",i),91,96);
+
+      if(i<2)
+	{
+	  pPtEtaSlice[i][0] = hPtVsEta[i]->ProjectionY(Form("p9_%d",i),1,500);
+	  pPtEtaSlice[i][1] = hPtVsEta[i]->ProjectionY(Form("p10_%d",i),1,270);
+	}
     }
 
 
@@ -668,4 +680,49 @@ void plotPartKinematics()
   leg4->AddEntry(pEtaStatusSlice[3][1],"Hadronization","l");
   leg4->AddEntry(pEtaStatusSlice[3][2],"Decay","l");
   leg4->Draw();
+
+  // Particle Pt Vs Eta
+  c[5]->cd(1);
+  hPtVsEta[0]->Draw("COLZ");
+  hPtVsEta[0]->SetTitle("Default Particle Pt Vs Eta;Eta;Pt");
+  hPtVsEta[0]->GetYaxis()->SetRangeUser(0,20);
+  gPad->SetLogz();
+  c[5]->cd(2);
+  hPtVsEta[1]->Draw("COLZ");
+  hPtVsEta[1]->SetTitle("All Effects Particle Pt Vs Eta;Eta;Pt");
+  hPtVsEta[1]->GetYaxis()->SetRangeUser(0,20);
+  gPad->SetLogz();
+  c[5]->cd(3);
+  pPtEtaSlice[0][0]->SetLineColor(kBlue);
+  pPtEtaSlice[0][1]->SetLineColor(kRed);
+  pPtEtaSlice[1][0]->SetLineColor(kGreen+2);
+  pPtEtaSlice[1][1]->SetLineColor(kBlack);
+  pPtEtaSlice[0][0]->SetTitle("Particle Pt Projections;Pt");
+  pPtEtaSlice[0][0]->GetXaxis()->SetRangeUser(0,30);
+  pPtEtaSlice[0][0]->DrawCopy("HIST");
+  pPtEtaSlice[0][1]->DrawCopy("HISTSAME");
+  pPtEtaSlice[1][0]->DrawCopy("HISTSAME");
+  pPtEtaSlice[1][1]->DrawCopy("HISTSAME");
+  gPad->SetLogy();
+
+  TLegend *leg5;
+  leg5 = new TLegend(0.25,0.85,0.70,0.55);
+  leg5->SetFillColor(0);
+  leg5->SetBorderSize(0);
+  //leg22->SetTextFont(63);
+  //leg22->SetTextSize(30);
+  leg5->AddEntry(pPtEtaSlice[0][0],"All #eta: Default","l");
+  leg5->AddEntry(pPtEtaSlice[0][1],"#eta < 3.5: Default","l");
+  leg5->AddEntry(pPtEtaSlice[1][0],"All #eta: All Effects","l");
+  leg5->AddEntry(pPtEtaSlice[1][1],"#eta < 3.5: All Effects","l");
+  leg5->Draw();
+
+  c[5]->cd(4);
+  pPtEtaSlice[0][0]->Draw("HIST");
+  pPtEtaSlice[0][1]->Draw("HISTSAME");
+  pPtEtaSlice[1][0]->Draw("HISTSAME");
+  pPtEtaSlice[1][1]->Draw("HISTSAME");
+  pPtEtaSlice[0][0]->SetTitle("Particle Pt Projections;Pt");
+  pPtEtaSlice[0][0]->GetXaxis()->SetRangeUser(0,5);
+  gPad->SetLogy();
 }
