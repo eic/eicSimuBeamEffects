@@ -78,6 +78,8 @@ void eicBeamShape::pick() {
 	  double div = sigmaPxA * gaussXA;
 	  double pxLocal = (mIonBeamEnergy + tmpPzA)*TMath::Sin(div); // Dispersion in Beam Frame
 	  deltaPxA += pxLocal*TMath::Cos(mXAngle); // Compensate for Crossing Angle to Lab Frame
+
+	  deltaPzA += pxLocal*TMath::Sin(mXAngle); // Projection of the x component of divergence onto the z-axis due to the crossing angle
 	}
       if(sigmaPyA > 0.)
 	{
