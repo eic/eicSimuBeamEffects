@@ -40,10 +40,10 @@ HEPMC_DIR = $(EICDIRECTORY)
 #	$(CXX) $(CXXFLAGS) -c PythiaDIS.cxx -o PythiaDIS.o -I$(HEPMC_DIR)/include -I.
 
 runBeamShape.exe: PythiaBeamShape.o eicBeamShape.o
-	$(CXX) PythiaBeamShape.o eicBeamShape.o -o runBeamShape.exe $(LDFLAGS) 
+	$(CXX) PythiaBeamShape.o eicBeamShape.o -o runBeamShape.exe $(LDFLAGS) -L$(HEPMC_DIR)/lib -L$(HEPMC_DIR)/lib64 $(LDFLAGS) -lHepMC3
 
 PythiaBeamShape.o : PythiaBeamShape.cxx eicBeamShape.h
-	$(CXX) $(CXXFLAGS) -c PythiaBeamShape.cxx -o PythiaBeamShape.o -I.
+	$(CXX) $(CXXFLAGS) -c PythiaBeamShape.cxx -o PythiaBeamShape.o -I$(HEPMC_DIR)/include -I.
 
 runBeamShapeHepMC.exe: PythiaBeamShapeHepMC.o eicBeamShape.o
 	$(CXX) PythiaBeamShapeHepMC.o eicBeamShape.o -o runBeamShapeHepMC.exe $(LDFLAGS) -L$(HEPMC_DIR)/lib -L$(HEPMC_DIR)/lib64 $(LDFLAGS) -lHepMC3

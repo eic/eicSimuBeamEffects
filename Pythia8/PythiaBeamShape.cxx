@@ -2,6 +2,8 @@
 
 #include "Pythia8/Pythia.h"
 #include "Pythia8/BeamShape.h"
+#include "Pythia8Plugins/HepMC3.h"
+#include "HepMC3/WriterAsciiHepMC2.h"
 #include "eicBeamShape.h"
 
 #include "fastjet/ClusterSequence.hh"
@@ -28,17 +30,19 @@ int main(int argc, char* argv[])
 {
   //const char* steerFile = 
 
-  if(argc != 3)
+  if(argc != 4)
     {
       cerr << "Wrong number of arguments" << endl;
-      cerr << "program.exe steer out.hist.root" << endl;
+      cerr << "program.exe steer out.hist.root out.hepmc" << endl;
       exit(EXIT_FAILURE);
     }
 
   const char* rootOut = argv[2];
+  const char* hepmcOut = argv[3];
 
   cout << "Steering File = " << argv[1] << endl;
   cout << "Root Output = " << rootOut << endl;
+  cout << "HepMC Output = " << hepmcOut << endl;
 
   // Open Root File
   TFile *ofile = TFile::Open(rootOut,"recreate");
@@ -139,6 +143,14 @@ TH2D *jetPtVsPtNoCutHist = new TH2D("jetPtVsPtNoCut","Jet Pt Vs Parton Pt",500,0
       jetPhiVsPhiEtaHist[i] = new TH2D(Form("jetPhiVsPhiEta_%d",i),"",100,-1.0*TMath::Pi(),TMath::Pi(),100,-1.0*TMath::Pi(),TMath::Pi());
     }
   */
+
+
+  // Interface for conversion from Pythia8::Event to HepMC event.
+  HepMC3::Pythia8ToHepMC3 topHepMC;
+
+  // Specify file where HepMC events will be stored.
+  //HepMC3::WriterAscii ascii_io(hepmcOut); // Write in HepMC3 Format
+  HepMC3::WriterAsciiHepMC2 ascii_io(hepmcOut); // Write in HepMC2 Format for Delphes
 
 
   // Set Up Pythia Event
@@ -364,6 +376,12 @@ TH2D *jetPtVsPtNoCutHist = new TH2D("jetPtVsPtNoCut","Jet Pt Vs Parton Pt",500,0
 	    }
 	}
 
+      // Construct new empty HepMC event and fill it.
+      HepMC3::GenEvent hepmcevt;
+      topHepMC.fill_next_event( p8, &hepmcevt );
+      
+      // Write the HepMC event to file.
+      ascii_io.write_event(hepmcevt);
     }
 
   // List Statistics  
