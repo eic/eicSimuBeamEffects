@@ -63,10 +63,12 @@ int main(int argc, char* argv[])
   TH1D *atan2PyPz1Hist = new TH1D("atan2PyPz1","",500,-0.001,0.001);
   TH1D *atan2PyPtot1Hist = new TH1D("atan2PyPtot1","",500,-0.001,0.001);
 
-  TH1D *vtxX = new TH1D("vtxX","Vertex x",100,-500.0,500.0);
-  TH1D *vtxY = new TH1D("vtxY","Vertex y",100,-1.0,1.0);
+  TH1D *vtxX = new TH1D("vtxX","Vertex x",2000,-2.0,2.0);
+  TH1D *vtxY = new TH1D("vtxY","Vertex y",2000,-2.0,2.0);
   TH1D *vtxZ = new TH1D("vtxZ","Vertex z",5000,-500.0,500.0);
   TH1D *vtxT = new TH1D("vtxT","Time",5000,-500.0,500.0);
+  TH2D *vtxYvsX = new TH2D("vtxYvsX","Vertex Y vs X",2000,-2.0,2.0,2000,-2.0,2.0);
+  TH2D *vtxXvsZ = new TH2D("vtxXvsZ","Vertex X vs Z",5000,-500.0,500.0,2000,-2.0,2.0);
   TH2D *vtxTvsZ = new TH2D("vtxTvsZ","Interaction Time Vs Z-vertex",5000,-500.0,500.0,5000,-500.0,500.0);
 
   // Particle Quantities
@@ -202,6 +204,8 @@ TH2D *jetPtVsPtNoCutHist = new TH2D("jetPtVsPtNoCut","Jet Pt Vs Parton Pt",500,0
       vtxY->Fill(p8.process[0].yProd());
       vtxZ->Fill(p8.process[0].zProd());
       vtxT->Fill(p8.process[0].tProd());
+      vtxYvsX->Fill(p8.process[0].xProd(),p8.process[0].yProd());
+      vtxXvsZ->Fill(p8.process[0].zProd(),p8.process[0].xProd());
       vtxTvsZ->Fill(p8.process[0].zProd(),p8.process[0].tProd());
 
       // Four-momenta of proton, electron, virtual photon/Z^0/W^+-.

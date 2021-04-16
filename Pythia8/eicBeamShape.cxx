@@ -20,11 +20,13 @@ eicBeamShape::eicBeamShape(double ion, double lepton, double xAngle, double hadC
 void eicBeamShape::pick() {
 
   //=============================================
-  // Reset Values
+  // (Re)set Values
   //=============================================
 
   deltaPxA = deltaPyA = deltaPzA = deltaPxB = deltaPyB = deltaPzB
     = vertexX = vertexY = vertexZ = vertexT = 0.;
+
+  double xIPOffset = 0.;
 
 
   //=============================================
@@ -69,8 +71,24 @@ void eicBeamShape::pick() {
       double intT = (-1.0*intPtH)/c;
 
       // Set Vertex Z and t
-      vertexZ = intPtH;
-      vertexT = intT;
+      vertexZ = intPtH; // in mm
+      vertexT = intT; // in mm
+
+      // Once z-vertex has been establized, determine the collision point offset in x due to crabbing
+      // Offset ~ theta_c/2k * sin(kz) ~ theta_c/2 * z
+      xIPOffset = (mXAngle/2.0)*intPtH; // in mm
+
+      // Finally, find x and y vertex
+      if(sigmaVertexX > 0.)
+	{
+	  vertexX += sigmaVertexX * rndmPtr->gauss();
+	}
+      vertexX += xIPOffset;
+
+      if(sigmaVertexY > 0.)
+	{
+	  vertexY += sigmaVertexY * rndmPtr->gauss();
+	}
     }
 
 
