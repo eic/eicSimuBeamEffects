@@ -19,9 +19,61 @@ eicBeamShape::eicBeamShape(double ion, double lepton, double xAngle, double hadC
 
 void eicBeamShape::pick() {
 
-  // Reset all values.
+  //=============================================
+  // Reset Values
+  //=============================================
+
   deltaPxA = deltaPyA = deltaPzA = deltaPxB = deltaPyB = deltaPzB
     = vertexX = vertexY = vertexZ = vertexT = 0.;
+
+
+  //=============================================
+  // Set Collision Vertex and Time
+  //=============================================
+
+  // Collision vertex and time are determined by randomly sampling the z-positions of the interacting lepton and hadron within their respective bunches. Assume z=0 is middle of bunch, hadron bunch moves left to right and lepton bunch moves right to left, positive z within hadron bunch is in direction of travel and positive z within lepton bunch is opposite direction of travel
+
+  if(allowVertexSpread)
+    {
+      // RMS Bunch Length [mm]
+      double hadronBL = 0.;
+      double leptonBL = 0.;
+      
+      // Set different values depending on energy
+      if(mIonBeamEnergy == 275.0) hadronBL = 60.0;
+      if(mLeptonBeamEnergy == 18.0) leptonBL = 9.0;
+      
+      // Set particle positions
+      double hadronPartPos = hadronBL*rndmPtr->gauss();
+      double leptonPartPos = leptonBL*rndmPtr->gauss();
+
+      // Calculate interaction point
+      // Distance between lepton and hadron at z=0
+      double dist = (hadronPartPos - leptonPartPos)/2.0;
+
+      // Interaction Point
+      double intPtH = hadronPartPos - dist;
+      double intPtL = leptonPartPos + dist;
+      //if(intPtH != intPtL) 
+      if(TMath::Abs(intPtH - intPtL) > 0.0001)
+	{
+	  cout << "SOMETHING VERY WRONG IN VERTEX CALC" << endl;
+	  cout << hadronPartPos << " " << leptonPartPos << endl;
+	  cout << dist << " " << intPtH << " " << intPtL << endl;
+	  cout << endl;
+	} 
+
+      // Interaction Time
+      //double c = 299.792458; // mm/ns
+      double c = 1.0; // c=1 in pythia coordinates
+      double intT = (-1.0*intPtH)/c;
+
+      // Set Vertex Z and t
+      vertexZ = intPtH;
+      vertexT = intT;
+    }
+
+
 
   // Change in Beam Pz
   double tmpPzA, tmpPzB;
@@ -32,7 +84,7 @@ void eicBeamShape::pick() {
     {
       if(sigmaVertexZ > 0.) 
 	{
-	  vertexZ = sigmaVertexZ * rndmPtr->gauss();
+	  //vertexZ = sigmaVertexZ * rndmPtr->gauss();
 	}
     }
 
