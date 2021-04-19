@@ -26,14 +26,14 @@ void eicBeamShape::pick() {
   deltaPxA = deltaPyA = deltaPzA = deltaPxB = deltaPyB = deltaPzB
     = vertexX = vertexY = vertexZ = vertexT = 0.;
 
-  double xIPOffset = 0.;
-
 
   //=============================================
   // Set Collision Vertex and Time
   //=============================================
 
   // Collision vertex and time are determined by randomly sampling the z-positions of the interacting lepton and hadron within their respective bunches. Assume z=0 is middle of bunch, hadron bunch moves left to right and lepton bunch moves right to left, positive z within hadron bunch is in direction of travel and positive z within lepton bunch is opposite direction of travel
+
+  double xIPOffset = 0.;
 
   if(allowVertexSpread)
     {
@@ -92,11 +92,92 @@ void eicBeamShape::pick() {
     }
 
 
+  //=============================================
+  // Smear Beam Energy
+  //=============================================
 
   // Change in Beam Pz
   double tmpPzA, tmpPzB;
   tmpPzA = tmpPzB = 0.;
 
+  if(allowMomentumSpread)
+    {
+      double gaussZA, gaussZB;
+      gaussZA = gaussZB = 0.;
+      if(sigmaPzA > 0.)
+	{
+	  gaussZA = rndmPtr->gauss();
+	  tmpPzA = mIonBeamEnergy * (sigmaPzA * gaussZA);
+	}
+      if(sigmaPzB > 0.)
+	{
+	  gaussZB = rndmPtr->gauss();
+	  tmpPzB = mLeptonBeamEnergy * (sigmaPzB * gaussZB);
+	}
+    }
+
+
+  //=============================================
+  // Crossing Angle Effects
+  //=============================================
+
+  if(allowMomentumSpread)
+    {
+      // Modify Px Due to Crossing Angle
+      deltaPxA += (mIonBeamEnergy + tmpPzA)*TMath::Sin(mXAngle);
+
+      // Modify Pz Due to Crossing Angle
+      deltaPzA += (mIonBeamEnergy + tmpPzA)*TMath::Cos(mXAngle) - mIonBeamEnergy;
+      //deltaPzA += tmpPzA;
+
+      // Electron Beam Has 0 Crossing Angle
+      deltaPzB += tmpPzB;
+    }
+
+
+  //=============================================
+  // Divergence Effects
+  //=============================================
+
+  if(allowMomentumSpread) // allowMomentumSpread
+    {
+      double gaussXA, gaussYA, gaussXB, gaussYB;
+
+      if(sigmaPxA > 0.)
+	{
+	  // Ion Beam X Divergence
+	  gaussXA = rndmPtr->gauss();
+	  double div = sigmaPxA * gaussXA;
+	  double pxLocal = (mIonBeamEnergy + tmpPzA)*TMath::Sin(div); // Dispersion in Beam Frame
+	  deltaPxA += pxLocal*TMath::Cos(mXAngle); // Compensate for Crossing Angle to Lab Frame
+
+	  deltaPzA += pxLocal*TMath::Sin(mXAngle); // Projection of the x component of divergence onto the z-axis due to the crossing angle
+	}
+      if(sigmaPyA > 0.)
+	{
+	  // Ion Beam Y Divergence
+	  gaussYA = rndmPtr->gauss();
+	  double div = sigmaPyA * gaussYA;
+	  deltaPyA += (mIonBeamEnergy + tmpPzA)*TMath::Sin(div); // No Crossing Angle in Y direction
+	}
+      if(sigmaPxB > 0.)
+	{
+	  // Lepton Beam X Divergence
+	  gaussXB = rndmPtr->gauss();
+	  double div = sigmaPxB * gaussXB;
+	  deltaPxB += (mLeptonBeamEnergy + tmpPzB)*TMath::Sin(div); // Electron Beam along Z Axis
+	}
+
+      if(sigmaPyB > 0.)
+	{
+	  // Lepton Beam Y Divergence
+	  gaussYB = rndmPtr->gauss();
+	  double div = sigmaPyB * gaussYB;
+	  deltaPyB += (mLeptonBeamEnergy + tmpPzB)*TMath::Sin(div);
+	}
+    }
+
+  /*
   // Set beam vertex location by a two-dimensional Gaussian.
   if(allowVertexSpread) 
     {
@@ -105,7 +186,9 @@ void eicBeamShape::pick() {
 	  //vertexZ = sigmaVertexZ * rndmPtr->gauss();
 	}
     }
+  */
 
+  /*
   // Smear Beam Energy to Set Scale of Other Effects
   if(allowMomentumSpread)
     {
@@ -132,7 +215,9 @@ void eicBeamShape::pick() {
       // Electron Beam Has 0 Crossing Angle
       deltaPzB += tmpPzB;
     }
+  */
 
+  /*
   if(allowMomentumSpread) // allowMomentumSpread
     {
       double gaussXA, gaussYA, gaussXB, gaussYB;
@@ -174,4 +259,5 @@ void eicBeamShape::pick() {
 	  deltaPyB += (mLeptonBeamEnergy + tmpPzB)*TMath::Sin(div);
 	}
     }
+  */
 }
