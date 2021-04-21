@@ -17,6 +17,7 @@ using std::string;
 #include "TFile.h"
 #include "TH1.h"
 #include "TH2.h"
+#include "TH3.h"
 #include "TMath.h"
 #include "TVector2.h"
 
@@ -67,10 +68,13 @@ int main(int argc, char* argv[])
   TH1D *vtxY = new TH1D("vtxY","Vertex y;[mm]",2000,-2.0,2.0);
   TH1D *vtxZ = new TH1D("vtxZ","Vertex z;[mm]",5000,-500.0,500.0);
   TH1D *vtxT = new TH1D("vtxT","Time;[mm]",5000,-500.0,500.0);
-  TH2D *vtxYvsX = new TH2D("vtxYvsX","Vertex Y vs X;[mm];[mm]",2000,-2.0,2.0,2000,-2.0,2.0);
-  TH2D *vtxXvsZ = new TH2D("vtxXvsZ","Vertex X vs Z;[mm];[mm]",5000,-500.0,500.0,2000,-2.0,2.0);
-  TH2D *vtxYvsZ = new TH2D("vtxYvsZ","Vertex Y vs Z;[mm];[mm]",5000,-500.0,500.0,2000,-2.0,2.0);
-  TH2D *vtxTvsZ = new TH2D("vtxTvsZ","Interaction Time Vs Z-vertex;[mm];[mm]",5000,-500.0,500.0,5000,-500.0,500.0);
+  TH2D *vtxYvsX = new TH2D("vtxYvsX","Vertex Y vs X;X [mm];Y [mm]",2000,-2.0,2.0,2000,-2.0,2.0);
+  TH2D *vtxXvsT = new TH2D("vtxXvsT","Vertex X vs T;T [mm];X [mm]",5000,-500.0,500.0,2000,-2.0,2.0);
+  TH2D *vtxXvsZ = new TH2D("vtxXvsZ","Vertex X vs Z;Z [mm];X [mm]",5000,-500.0,500.0,2000,-2.0,2.0);
+  TH2D *vtxYvsZ = new TH2D("vtxYvsZ","Vertex Y vs Z;Z [mm];Y [mm]",5000,-500.0,500.0,2000,-2.0,2.0);
+  TH2D *vtxTvsZ = new TH2D("vtxTvsZ","Interaction Time Vs Z-vertex;Z [mm];T [mm]",5000,-500.0,500.0,5000,-500.0,500.0);
+  
+  TH2D *lepVsHadPartZ = new TH2D("lepVsHadPartZ","Intrabunch Z Positions of Colliding Leptons Vs Hadrons",5000,-500.0,500.0,5000,-500.0,500.0);
 
   // Particle Quantities
   TH1D *partPtHist = new TH1D("partPt","Final State Particle Pt",500,0.,50.);
@@ -206,9 +210,15 @@ TH2D *jetPtVsPtNoCutHist = new TH2D("jetPtVsPtNoCut","Jet Pt Vs Parton Pt",500,0
       vtxZ->Fill(p8.process[0].zProd());
       vtxT->Fill(p8.process[0].tProd());
       vtxYvsX->Fill(p8.process[0].xProd(),p8.process[0].yProd());
+      vtxXvsT->Fill(p8.process[0].tProd(),p8.process[0].xProd());
       vtxXvsZ->Fill(p8.process[0].zProd(),p8.process[0].xProd());
       vtxYvsZ->Fill(p8.process[0].zProd(),p8.process[0].yProd());
       vtxTvsZ->Fill(p8.process[0].zProd(),p8.process[0].tProd());
+
+      double hadZ = p8.process[0].zProd() - TMath::Cos(0.0125)*p8.process[0].tProd();
+      double lepZ = p8.process[0].zProd() + TMath::Cos(0.0125)*p8.process[0].tProd();
+      lepVsHadPartZ->Fill(hadZ,lepZ);
+
 
       // Four-momenta of proton, electron, virtual photon/Z^0/W^+-.
       Pythia8::Vec4 pProton = event[1].p();

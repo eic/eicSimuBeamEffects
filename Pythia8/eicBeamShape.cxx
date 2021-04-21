@@ -33,7 +33,7 @@ void eicBeamShape::pick() {
 
   // Collision vertex and time are determined by randomly sampling the z-positions of the interacting lepton and hadron within their respective bunches. Assume z=0 is middle of bunch, hadron bunch moves left to right and lepton bunch moves right to left, positive z within hadron bunch is in direction of travel and positive z within lepton bunch is opposite direction of travel
 
-  double xIPOffset = 0.;
+  //double xIPOffset = 0.;
 
   if(allowVertexSpread)
     {
@@ -49,6 +49,49 @@ void eicBeamShape::pick() {
       double hadronPartPos = hadronBL*rndmPtr->gauss();
       double leptonPartPos = leptonBL*rndmPtr->gauss();
 
+      // Find Collision time, z position of collision, z position of center of hadron bunch at collision time and x position of collision
+      // Quantities are found via a system of parametric equations
+      // Z position of colliding hadron as a function of time: Z_h = Cos(0.5*theta_c)*t + Z_h_offset (Z_h_offset = distance from center of bunch)
+      // Z position of colliding lepton as a function of time: Z_l = -Cos(0.5*theta_c)*t + Z_l_offset
+      // Collision time when Z_h = Z_l -> t_int = (Z_l_offset - Z_h_offset)/(2*Cos(0.5*theta_c))
+      // Z position of collision: Z_int = (Z_l_offset + Z_h_offset)/2
+      // Z position of center of hadron bunch a collision time - this gives x position of collision via relation x = z*Tan(0.5*theta_c)
+      // Z_bunch_int = Cos(0.5*theta_c)*t_int
+      // X_int = Z_bunch_int * Tan(0.5*theta_c)
+
+      double c_c = TMath::Cos(mXAngle/2.0);
+      double s_c = TMath::Sin(mXAngle/2.0);
+      double t_c = TMath::Tan(mXAngle/2.0);
+
+      double t_int = (leptonPartPos - hadronPartPos)/(2.0*c_c);
+      double z_int = (leptonPartPos + hadronPartPos)/2.0;
+      double z_bunch_int = c_c*t_int;
+      double x_int = z_bunch_int*t_c;
+
+      // x_int is the x position of collision assuming the colliding particles are in the center of the bunch. Sample random x position according to x-width of bunches. x_int is then an offset to this. Get y position as well.
+
+      double y_int = 0.;
+      if(sigmaVertexX > 0.)
+	{
+	  x_int += sigmaVertexX * rndmPtr->gauss();
+	}
+
+      if(sigmaVertexY > 0.)
+	{
+	  y_int += sigmaVertexY * rndmPtr->gauss();
+	}
+
+      // We now have the x-y-z position of the collision in the accelerator frame, but we want it in the detector frame. Rotate by 0.5*theta_c to get to accelerator frame
+
+      vertexT = t_int;
+      vertexX = x_int*c_c + z_int*s_c;
+      //vertexX = x_int;
+      vertexY = y_int;
+      vertexZ = x_int*(-1.0)*s_c + z_int*c_c;
+      //vertexZ = z_int;
+
+
+      /*
       // Calculate interaction point
       // Distance between lepton and hadron at z=0
       double dist = (hadronPartPos - leptonPartPos)/2.0;
@@ -77,7 +120,9 @@ void eicBeamShape::pick() {
       // Once z-vertex has been establized, determine the collision point offset in x due to crabbing
       // Offset ~ theta_c/2k * sin(kz) ~ theta_c/2 * z
       xIPOffset = (mXAngle/2.0)*intPtH; // in mm
+      */
 
+      /*
       // Finally, find x and y vertex
       if(sigmaVertexX > 0.)
 	{
@@ -89,6 +134,7 @@ void eicBeamShape::pick() {
 	{
 	  vertexY += sigmaVertexY * rndmPtr->gauss();
 	}
+      */
     }
 
 
@@ -260,4 +306,14 @@ void eicBeamShape::pick() {
 	}
     }
   */
+
+  /*
+    
+
+
+   */
+
+  // _
+  //(
+  //-
 }
