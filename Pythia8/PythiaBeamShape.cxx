@@ -223,14 +223,19 @@ TH2D *jetPtVsPtNoCutHist = new TH2D("jetPtVsPtNoCut","Jet Pt Vs Parton Pt",500,0
       // Four-momenta of proton, electron, virtual photon/Z^0/W^+-.
       Pythia8::Vec4 pProton = event[1].p();
       Pythia8::Vec4 peIn    = event[4].p();
+      //Pythia8::Vec4 peInAlt = event[2].p();
       Pythia8::Vec4 peOut   = event[6].p();
       Pythia8::Vec4 pPhoton = peIn - peOut;
+      //Pythia8::Vec4 pPhotonAlt = peInAlt - peOut;
 
       // Q2, W2, Bjorken x, y.
       double Q2    = - pPhoton.m2Calc();
+      //double Q2Alt = -pPhotonAlt.m2Calc();
       double W2    = (pProton + pPhoton).m2Calc();
       double x     = Q2 / (2. * pProton * pPhoton);
+      //double xAlt  = Q2Alt / (2. * pProton * pPhotonAlt);
       double y     = (pProton * pPhoton) / (pProton * peIn);
+      //double yAlt  = (pProton * pPhotonAlt) / (pProton * peInAlt);
       double jetPt = event[5].pT();
       double jetEta = event[5].eta();
       double jetPhi = event[5].phi();
@@ -241,6 +246,11 @@ TH2D *jetPtVsPtNoCutHist = new TH2D("jetPtVsPtNoCut","Jet Pt Vs Parton Pt",500,0
       double jetKtPhi = event[8].phi();
 
       //if(Q2 < 10.0) cout << "Low Q2: " << Q2 << endl;
+
+      //cout << setprecision(10) << eCMnom << " " << eCMnow << " " << Q2 << " " << x << " " << y << " " <<  p8.info.x1pdf() << " " << p8.info.x2pdf() << " " << p8.info.Q2Fac() << " " << p8.info.Q2Ren() << " " << p8.info.pT2Hat() << endl;
+      //cout << setprecision(10) << Q2Alt << " " << xAlt << " " << yAlt << endl;
+      //cout << setprecision(10) << eCMnom*eCMnom*x*y << " " << eCMnow*eCMnow*x*y << endl;
+      //cout << endl;
 
       // Event Level
       q2Hist->Fill(std::log10(Q2));
@@ -259,6 +269,8 @@ TH2D *jetPtVsPtNoCutHist = new TH2D("jetPtVsPtNoCut","Jet Pt Vs Parton Pt",500,0
 	  double py = p8.event[i].py();
 	  double pz = p8.event[i].pz();
 	  double E = p8.event[i].e();
+
+	  //cout << i << " " << p8.event[i].id() << " " << partPt << " " << partEta << " " << partPhi << endl;
 
 	  if(partFin && partEta>-10.0 && partEta<10.0 && y<0.95 && y>0.01 && i > 7)
 	    {

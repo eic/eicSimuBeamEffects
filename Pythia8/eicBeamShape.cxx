@@ -84,10 +84,12 @@ void eicBeamShape::pick() {
       // We now have the x-y-z position of the collision in the accelerator frame, but we want it in the detector frame. Rotate by 0.5*theta_c to get to accelerator frame
 
       vertexT = t_int;
-      vertexX = x_int*c_c + z_int*s_c;
+      vertexX = x_int*c_c + z_int*s_c; // rotate to detector frame
+      //vertexX = x_int*c_c - z_int*s_c; // rotate to hadron beam frame
       //vertexX = x_int;
       vertexY = y_int;
-      vertexZ = x_int*(-1.0)*s_c + z_int*c_c;
+      vertexZ = x_int*(-1.0)*s_c + z_int*c_c; // rotate to detector frame
+      //vertexZ = x_int*s_c + z_int*c_c; // rotate to hadron beam frame
       //vertexZ = z_int;
 
 
