@@ -34,6 +34,8 @@ void eicBeamShape::pick() {
   // Collision vertex and time are determined by randomly sampling the z-positions of the interacting lepton and hadron within their respective bunches. Assume z=0 is middle of bunch, hadron bunch moves left to right and lepton bunch moves right to left, positive z within hadron bunch is in direction of travel and positive z within lepton bunch is opposite direction of travel
 
   //double xIPOffset = 0.;
+  double hadronPartPos = 0.;
+  double leptonPartPos = 0.;
 
   if(allowVertexSpread)
     {
@@ -46,8 +48,8 @@ void eicBeamShape::pick() {
       if(mLeptonBeamEnergy == 18.0) leptonBL = 9.0;
       
       // Set particle positions
-      double hadronPartPos = hadronBL*rndmPtr->gauss();
-      double leptonPartPos = leptonBL*rndmPtr->gauss();
+      hadronPartPos = hadronBL*rndmPtr->gauss();
+      leptonPartPos = leptonBL*rndmPtr->gauss();
 
       // Find Collision time, z position of collision, z position of center of hadron bunch at collision time and x position of collision
       // Quantities are found via a system of parametric equations
@@ -224,6 +226,36 @@ void eicBeamShape::pick() {
 	  deltaPyB += (mLeptonBeamEnergy + tmpPzB)*TMath::Sin(div);
 	}
     }
+
+
+  //=============================================
+  // Crabbing Momentum Kicks
+  //=============================================
+
+  if(allowMomentumSpread)
+    {
+      double betaCrabHad = 1300000.0; // Beta Crab in mm for 275 hadron beam
+      double betaStarHad = 800.0; // Beta Star in mm for 275 hadron beam
+
+      double betaCrabLep = 150000.0; // Beta Crab in mm for 18 lepton beam
+      double betaStarLep = 590.0; // Beta Star in mm for 18 lepton beam
+
+      // Calculate angular deflection
+      double crabAngHad = ((mXAngle/2.0)*hadronPartPos)/(TMath::Sqrt(betaCrabHad*betaStarHad));
+      double crabAngLep = ((mXAngle/2.0)*leptonPartPos)/(TMath::Sqrt(betaCrabLep*betaStarLep));
+
+      // Calculate Magnitude of Px kick
+      double crabKickHad = (mIonBeamEnergy + tmpPzA)*TMath::Sin(crabAngHad);
+      double crabKickLep = (-1.0)*(mLeptonBeamEnergy + tmpPzB)*TMath::Sin(crabAngLep); // 
+
+      // Rotate Momentum Kick into Detector Frame
+      deltaPxA += crabKickHad*TMath::Cos(mXAngle/2.0);
+      deltaPzA += (-1.0)*crabKickHad*TMath::Sin(mXAngle/2.0);
+
+      deltaPxB += crabKickLep*TMath::Cos(mXAngle/2.0);
+      deltaPzB += (-1.0)*crabKickLep*TMath::Sin(mXAngle/2.0);
+    }
+
 
   /*
   // Set beam vertex location by a two-dimensional Gaussian.
