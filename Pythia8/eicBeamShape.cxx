@@ -8,13 +8,13 @@
 
 using namespace Pythia8;
 
-eicBeamShape::eicBeamShape(double ion, double lepton, double xAngle, double hadCrab, double lepCrab) 
+eicBeamShape::eicBeamShape(double ion, double lepton, double xAngle) 
   {
     mIonBeamEnergy = ion;
     mLeptonBeamEnergy = lepton;
     mXAngle = xAngle;
-    mHadronCrabSize = hadCrab;
-    mLeptonCrabSize = lepCrab;
+    //mHadronCrabSize = hadCrab;
+    //mLeptonCrabSize = lepCrab;
   }
 
 void eicBeamShape::pick() {
@@ -85,14 +85,28 @@ void eicBeamShape::pick() {
 
       // We now have the x-y-z position of the collision in the accelerator frame, but we want it in the detector frame. Rotate by 0.5*theta_c to get to accelerator frame
 
-      vertexT = t_int;
-      vertexX = x_int*c_c + z_int*s_c; // rotate to detector frame
+      //vertexT = t_int;
+      //vertexX = x_int*c_c + z_int*s_c; // rotate to detector frame
       //vertexX = x_int*c_c - z_int*s_c; // rotate to hadron beam frame
       //vertexX = x_int;
-      vertexY = y_int;
-      vertexZ = x_int*(-1.0)*s_c + z_int*c_c; // rotate to detector frame
+      //vertexY = y_int;
+      //vertexZ = x_int*(-1.0)*s_c + z_int*c_c; // rotate to detector frame
       //vertexZ = x_int*s_c + z_int*c_c; // rotate to hadron beam frame
       //vertexZ = z_int;
+
+      double tmpVtxX, tmpVtxY, tmpVtxZ;
+      tmpVtxX = tmpVtxY = tmpVtxZ = 0.;
+
+      RotY(mXAngle/2.0,x_int,y_int,z_int,&tmpVtxX,&tmpVtxY,&tmpVtxZ);
+
+      vertexT = t_int;
+      vertexX = tmpVtxX;
+      vertexY = tmpVtxY;
+      vertexZ = tmpVtxZ;
+
+      //cout << vertexX << " " << vertexY << " " << vertexZ << endl;
+      //cout << tmpVtxX << " " << tmpVtxY << " " << tmpVtxZ << endl;
+      //cout << endl;
 
 
       /*
@@ -199,9 +213,22 @@ void eicBeamShape::pick() {
 	  gaussXA = rndmPtr->gauss();
 	  double div = sigmaPxA * gaussXA;
 	  double pxLocal = (mIonBeamEnergy + tmpPzA)*TMath::Sin(div); // Dispersion in Beam Frame
-	  deltaPxA += pxLocal*TMath::Cos(mXAngle); // Compensate for Crossing Angle to Lab Frame
+	  //deltaPxA += pxLocal*TMath::Cos(mXAngle); // Compensate for Crossing Angle to Lab Frame
 
-	  deltaPzA += pxLocal*TMath::Sin(mXAngle); // Projection of the x component of divergence onto the z-axis due to the crossing angle
+	  //deltaPzA += pxLocal*TMath::Sin(mXAngle); // Projection of the x component of divergence onto the z-axis due to the crossing angle
+
+	  // Rotate into Detector Frame
+	  double divPxA, divPyA, divPzA;
+	  divPxA = divPyA = divPzA = 0.;
+
+	  RotY(mXAngle,pxLocal,0.,0.,&divPxA,&divPyA,&divPzA);
+
+	  deltaPxA += divPxA;
+	  deltaPzA += divPzA;
+
+	  //cout << setprecision(10) << pxLocal*TMath::Cos(mXAngle) << " " << pxLocal*TMath::Sin(mXAngle) << endl;
+	  //cout << setprecision(10) << divPxA << " " << divPzA << endl;
+	  //cout << endl;
 	}
       if(sigmaPyA > 0.)
 	{
@@ -249,11 +276,17 @@ void eicBeamShape::pick() {
       double crabKickLep = (-1.0)*(mLeptonBeamEnergy + tmpPzB)*TMath::Sin(crabAngLep); // 
 
       // Rotate Momentum Kick into Detector Frame
-      deltaPxA += crabKickHad*TMath::Cos(mXAngle/2.0);
-      deltaPzA += (-1.0)*crabKickHad*TMath::Sin(mXAngle/2.0);
+      double tmpVertPxA, tmpVertPyA, tmpVertPzA;
+      double tmpVertPxB, tmpVertPyB, tmpVertPzB;
+      tmpVertPxA = tmpVertPyA = tmpVertPzA = tmpVertPxB = tmpVertPyB = tmpVertPzB = 0.;
 
-      deltaPxB += crabKickLep*TMath::Cos(mXAngle/2.0);
-      deltaPzB += (-1.0)*crabKickLep*TMath::Sin(mXAngle/2.0);
+      RotY(mXAngle/2.0,crabKickHad,0.,0.,&tmpVertPxA,&tmpVertPyA,&tmpVertPzA);
+      RotY(mXAngle/2.0,crabKickLep,0.,0.,&tmpVertPxB,&tmpVertPyB,&tmpVertPzB);
+
+      deltaPxA += tmpVertPxA;
+      deltaPzA += tmpVertPzA;
+      deltaPxB += tmpVertPxB;
+      deltaPzB += tmpVertPzB;
     }
 
 
@@ -350,4 +383,12 @@ void eicBeamShape::pick() {
   // _
   //(
   //-
+}
+
+
+void eicBeamShape::RotY(double theta, double xin, double yin, double zin, double *xout, double *yout, double *zout) {
+
+  *xout = xin*TMath::Cos(theta) + zin*TMath::Sin(theta);
+  *yout = yin;
+  *zout = zin*TMath::Cos(theta) - xin*TMath::Sin(theta);
 }

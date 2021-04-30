@@ -14,18 +14,21 @@ class eicBeamShape : public BeamShape {
  public:
 
   // Constructor
-  eicBeamShape(double ion, double lepton, double xAngle, double hadCrab, double lepCrab);
+  eicBeamShape(double ion, double lepton, double xAngle);
 
   // Set Beam Properties to Pass to Pythia
   virtual void pick();
+
+  // Rotation Utility
+  void RotY(double theta, double xin, double yin, double zin, double *xout, double *yout, double *zout);
 
  protected:
 
   double mIonBeamEnergy;
   double mLeptonBeamEnergy;
   double mXAngle;
-  double mHadronCrabSize;
-  double mLeptonCrabSize;
+  //double mHadronCrabSize;
+  //double mLeptonCrabSize;
 
 };
 

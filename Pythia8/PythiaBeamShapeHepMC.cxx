@@ -62,7 +62,7 @@ int main(int argc, char* argv[])
   Pythia8::Event &event = p8.event;
 
   // A class to generate beam parameters according to own parametrization.
-  BeamShapePtr myBeamShape = make_shared<eicBeamShape>(275.0,18.0,0.025,0.0030,-0.0015);
+  BeamShapePtr myBeamShape = make_shared<eicBeamShape>(275.0,18.0,0.025);
 
   // Hand pointer to Pythia.
   // If you comment this out you get internal Gaussian-style implementation.
