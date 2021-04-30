@@ -27,8 +27,6 @@ class eicBeamShape : public BeamShape {
   double mIonBeamEnergy;
   double mLeptonBeamEnergy;
   double mXAngle;
-  //double mHadronCrabSize;
-  //double mLeptonCrabSize;
 
 };
 
