@@ -29,16 +29,25 @@ int main(int argc, char* argv[])
 {
   //const char* steerFile = 
 
-  if(argc != 3)
+  if(argc != 7)
     {
       cerr << "Wrong number of arguments" << endl;
-      cerr << "program.exe steer out.hist.root" << endl;
+      cerr << "program.exe steer configuration hadronE leptonE xangle out.hist.root" << endl;
       exit(EXIT_FAILURE);
     }
 
-  const char* rootOut = argv[2];
+  const int config = atoi(argv[2]);
+  const double hadE = atof(argv[3]);
+  const double lepE = atof(argv[4]);
+  const double xing = atof(argv[5]);
+  const char* rootOut = argv[6];
 
   cout << "Steering File = " << argv[1] << endl;
+  if(config == 1) cout << "Configuration = High Divergence" << endl;
+  if(config == 2) cout << "Configuration = High Acceptance" << endl; 
+  cout << "Hadron Energy = " << hadE << endl;
+  cout << "Lepton Energy = " << lepE << endl;
+  cout << "Beam Crossing Angle (miliradians) = " << xing << endl;
   cout << "Root Output = " << rootOut << endl;
 
   // Open Root File
@@ -155,7 +164,7 @@ TH2D *jetPtVsPtNoCutHist = new TH2D("jetPtVsPtNoCut","Jet Pt Vs Parton Pt",500,0
   Pythia8::Event &event = p8.event;
 
   // A class to generate beam parameters according to own parametrization.
-  BeamShapePtr myBeamShape = make_shared<eicBeamShape>(275.0,18.0,0.025);
+  BeamShapePtr myBeamShape = make_shared<eicBeamShape>(config,hadE,lepE,xing);
 
   // Hand pointer to Pythia.
   // If you comment this out you get internal Gaussian-style implementation.

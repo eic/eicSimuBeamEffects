@@ -8,8 +8,9 @@
 
 using namespace Pythia8;
 
-eicBeamShape::eicBeamShape(double ion, double lepton, double xAngle) 
+eicBeamShape::eicBeamShape(int config, double ion, double lepton, double xAngle) 
   {
+    mDivAcc = config;
     mIonBeamEnergy = ion;
     mLeptonBeamEnergy = lepton;
     mXAngle = xAngle;
@@ -37,13 +38,17 @@ void eicBeamShape::pick() {
 
   if(allowVertexSpread)
     {
-      // RMS Bunch Length [mm]
+      // RMS Bunch Length [mm] (CDR Table 3.3 & 3.4)
       double hadronBL = 0.;
       double leptonBL = 0.;
       
       // Set different values depending on energy
       if(mIonBeamEnergy == 275.0) hadronBL = 60.0;
+      if(mIonBeamEnergy == 100.0) hadronBL = 70.0;
+      if(mIonBeamEnergy == 41.0)  hadronBL = 75.0;
       if(mLeptonBeamEnergy == 18.0) leptonBL = 9.0;
+      if(mLeptonBeamEnergy == 10.0) leptonBL = 7.0;
+      if(mLeptonBeamEnergy == 5.0)  leptonBL = 7.0;
       
       // Set particle positions
       hadronPartPos = hadronBL*rndmPtr->gauss();
@@ -193,11 +198,56 @@ void eicBeamShape::pick() {
 
   if(allowMomentumSpread)
     {
-      double betaCrabHad = 1300000.0; // Beta Crab in mm for 275 hadron beam
-      double betaStarHad = 800.0; // Beta Star in mm for 275 hadron beam
+      // Assign Crab and IP Beta Functions for Different Beam Energies [mm] (CDR Tab 3.3 & 3.4 and Elke)
+      double betaCrabHad = 0.;
+      double betaStarHad = 0.; // In horizontal direction
 
-      double betaCrabLep = 150000.0; // Beta Crab in mm for 18 lepton beam
-      double betaStarLep = 590.0; // Beta Star in mm for 18 lepton beam
+      if(mIonBeamEnergy == 275.0) betaCrabHad = 1300000.0;
+      if(mIonBeamEnergy == 100.0) betaCrabHad = 500000.0;
+      if(mIonBeamEnergy == 41.0)  betaCrabHad = 200000.0;
+      if(mDivAcc == 1) // High Divergence Config - CDR Table 3.3
+	{
+	  if(mIonBeamEnergy == 275.0) betaStarHad = 800.0;
+	  if(mIonBeamEnergy == 100.0 && mLeptonBeamEnergy == 10.0) betaStarHad = 630.0; // For root[s] = 63.2
+	  if(mIonBeamEnergy == 100.0 && mLeptonBeamEnergy == 5.0)  betaStarHad = 610.0; // For root[s] = 44.7
+	  if(mIonBeamEnergy == 41.0)  betaStarHad = 900.0;
+	}
+      if(mDivAcc == 2) // High Acceptance Config - CDR Table 3.4
+	{
+	  if(mIonBeamEnergy == 275.0 && mLeptonBeamEnergy == 18.0) betaStarHad = 4170.0; // For root[s] = 140.7
+	  if(mIonBeamEnergy == 275.0 && mLeptonBeamEnergy == 10.0) betaStarHad = 2650.0; // For root[s] = 104.9
+	  if(mIonBeamEnergy == 100.0 && mLeptonBeamEnergy == 10.0) betaStarHad = 940.0; // For root[s] = 63.2
+	  if(mIonBeamEnergy == 100.0 && mLeptonBeamEnergy == 5.0)  betaStarHad = 800.0; // For root[s] = 44.7
+	  if(mIonBeamEnergy == 41.0 && mLeptonBeamEnergy == 5.0)   betaStarHad = 900.0; // For root[s] = 28.6
+	}
+
+      double betaCrabLep = 0.;
+      double betaStarLep = 0.;
+      if(mLeptonBeamEnergy == 18.0) betaCrabLep = 150000.0;
+      if(mLeptonBeamEnergy == 10.0) betaCrabLep = 150000.0;
+      if(mLeptonBeamEnergy == 5.0)  betaCrabLep = 150000.0;
+      if(mDivAcc == 1) // High Divergence Config - CDR Table 3.3
+	{
+	  if(mLeptonBeamEnergy == 18.0) betaStarLep = 590.0;
+	  if(mLeptonBeamEnergy == 10.0 && mIonBeamEnergy == 275.0) betaStarLep = 450.0; // For root[s] = 104.9
+	  if(mLeptonBeamEnergy == 10.0 && mIonBeamEnergy == 100.0) betaStarLep = 960.0; // For root[s] = 63.2
+	  if(mLeptonBeamEnergy == 5.0 && mIonBeamEnergy == 100.0)  betaStarLep = 780.0; // For root[s] = 44.7
+	  if(mLeptonBeamEnergy == 5.0 && mIonBeamEnergy == 41.0)   betaStarLep = 1960.0; // For root[s] = 28.6
+	}
+      if(mDivAcc == 2) // High Acceptance Config - CDR Table 3.4
+	{
+	  if(mLeptonBeamEnergy == 18.0) betaStarLep = 3060.0;
+	  if(mLeptonBeamEnergy == 10.0 && mIonBeamEnergy == 275.0) betaStarLep = 1490.0; // For root[s] = 104.9
+	  if(mLeptonBeamEnergy == 10.0 && mIonBeamEnergy == 100.0) betaStarLep = 1430.0; // For root[s] = 63.2
+	  if(mLeptonBeamEnergy == 5.0 && mIonBeamEnergy == 100.0)  betaStarLep = 1030.0; // For root[s] = 44.7
+	  if(mLeptonBeamEnergy == 5.0 && mIonBeamEnergy == 41.0)   betaStarLep = 1960.0; // For root[s] = 28.6 
+	}
+
+      //double betaCrabHad = 1300000.0; // Beta Crab in mm for 275 hadron beam
+      //double betaStarHad = 800.0; // Beta Star in mm for 275 hadron beam
+
+      //double betaCrabLep = 150000.0; // Beta Crab in mm for 18 lepton beam
+      //double betaStarLep = 590.0; // Beta Star in mm for 18 lepton beam
 
       // Calculate angular deflection
       double crabAngHad = ((mXAngle/2.0)*hadronPartPos)/(TMath::Sqrt(betaCrabHad*betaStarHad));
