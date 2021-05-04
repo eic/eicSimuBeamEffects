@@ -14,6 +14,46 @@ eicBeamShape::eicBeamShape(int config, double ion, double lepton, double xAngle)
     mIonBeamEnergy = ion;
     mLeptonBeamEnergy = lepton;
     mXAngle = xAngle;
+    mKill == 0;
+
+    // Ensure Beam Energies Correspond to Those Presented in CDR
+    if(ion != 275.0 && ion != 100.0 && ion != 41.0) 
+      {
+	cout << ion << " is not a valid Hadron Beam Energy!!" << endl;
+	cout << "Valid Energies are 275.0, 100.0, and 41.0" << endl;
+	cout << "Turning off all beam effects" << endl;
+	mKill = 1;
+      }
+    if(lepton != 18.0 && lepton != 10.0 && lepton != 5.0) 
+      {
+	cout << lepton << " is not a valid Lepton Beam Energy!!" << endl;
+	cout << "Valid Energies are 18.0, 10.0, and 5.0" << endl;
+	cout << "Turning off all beam effects" << endl;
+	mKill = 1;
+      }
+
+    // Ensure Beam Energy Combinations Correspond to Those Presented in CDR
+    if(ion == 275.0 && (lepton != 18.0 && lepton != 10.0))
+      {
+	cout << lepton << "x" << ion << " is not a valid energy combination!!" << endl;
+	cout << "Valid Combinations are 18x275, 10x275, 10x100, 5x100, and 5x41" << endl;
+	cout << "Turning off all beam effects" << endl;
+	mKill = 1;
+      }
+    if(ion == 100.0 &&(lepton != 10.0 && lepton != 5.0))
+      {
+	cout << lepton << "x" << ion << " is not a valid energy combination!!" << endl;
+	cout << "Valid Combinations are 18x275, 10x275, 10x100, 5x100, and 5x41" << endl;
+	cout << "Turning off all beam effects" << endl;
+	mKill = 1;
+      }
+    if(ion == 41.0 && lepton != 5.0)
+      {
+	cout << lepton << "x" << ion << " is not a valid energy combination!!" << endl;
+	cout << "Valid Combinations are 18x275, 10x275, 10x100, 5x100, and 5x41" << endl;
+	cout << "Turning off all beam effects" << endl;
+	mKill = 1;
+      }
   }
 
 void eicBeamShape::pick() {
@@ -269,6 +309,102 @@ void eicBeamShape::pick() {
       deltaPzA += tmpVertPzA;
       deltaPxB += tmpVertPxB;
       deltaPzB += tmpVertPzB;
+    }
+
+
+  //=============================================
+  // Reset for Input to Steering File Mismatch
+  //=============================================
+  int localKill = 0;
+  if(mIonBeamEnergy == 275.0 && mLeptonBeamEnergy == 18.0)
+    {
+      if(mDivAcc == 1)
+	{
+	  if(sigmaPxA != 0.000150 || sigmaPyA != 0.000150 || sigmaPzA != 0.00068) localKill = 1;
+	  if(sigmaPxB != 0.000202 || sigmaPyB != 0.000187 || sigmaPzB != 0.00109) localKill = 1;
+	  if(sigmaVertexX != 0.084 || sigmaVertexY != 0.008) localKill = 1;
+	}
+      if(mDivAcc == 2)
+	{
+	  if(sigmaPxA != 0.000065 || sigmaPyA != 0.000065 || sigmaPzA != 0.00068) localKill = 1;
+	  if(sigmaPxB != 0.000089 || sigmaPyB != 0.000082 || sigmaPzB != 0.00109) localKill = 1;
+	  if(sigmaVertexX != 0.192 || sigmaVertexY != 0.017) localKill = 1;
+	}
+    }
+  if(mIonBeamEnergy == 275.0 && mLeptonBeamEnergy == 10.0)
+    {
+      if(mDivAcc == 1)
+	{
+	  if(sigmaPxA != 0.000119 || sigmaPyA != 0.000119 || sigmaPzA != 0.00068) localKill = 1;
+	  if(sigmaPxB != 0.000211 || sigmaPyB != 0.000152 || sigmaPzB != 0.00058) localKill = 1;
+	  if(sigmaVertexX != 0.067 || sigmaVertexY != 0.006) localKill = 1;
+	}
+      if(mDivAcc == 2)
+	{
+	  if(sigmaPxA != 0.000065 || sigmaPyA != 0.000065 || sigmaPzA != 0.00068) localKill = 1;
+	  if(sigmaPxB != 0.000116 || sigmaPyB != 0.000084 || sigmaPzB != 0.00058) localKill = 1;
+	  if(sigmaVertexX != 0.122 || sigmaVertexY != 0.011) localKill = 1;
+	}
+    }
+  if(mIonBeamEnergy == 100.0 && mLeptonBeamEnergy == 10.0)
+    {
+      if(mDivAcc == 1)
+	{
+	  if(sigmaPxA != 0.000220 || sigmaPyA != 0.000220 || sigmaPzA != 0.00097) localKill = 1;
+	  if(sigmaPxB != 0.000145 || sigmaPyB != 0.000105 || sigmaPzB != 0.00058) localKill = 1;
+	  if(sigmaVertexX != 0.098 || sigmaVertexY != 0.008) localKill = 1;
+	}
+      if(mDivAcc == 2)
+	{
+	  if(sigmaPxA != 0.000180 || sigmaPyA != 0.000180 || sigmaPzA != 0.00097) localKill = 1;
+	  if(sigmaPxB != 0.000118 || sigmaPyB != 0.000086 || sigmaPzB != 0.00058) localKill = 1;
+	  if(sigmaVertexX != 0.120 || sigmaVertexY != 0.011) localKill = 1;
+	}
+    }
+  if(mIonBeamEnergy == 100.0 && mLeptonBeamEnergy == 5.0)
+    {
+      if(mDivAcc == 1)
+	{
+	  if(sigmaPxA != 0.000206 || sigmaPyA != 0.000206 || sigmaPzA != 0.00097) localKill = 1;
+	  if(sigmaPxB != 0.000160 || sigmaPyB != 0.000160 || sigmaPzB != 0.00068) localKill = 1;
+	  if(sigmaVertexX != 0.088 || sigmaVertexY != 0.008) localKill = 1;
+	}
+      if(mDivAcc == 2)
+	{
+	  if(sigmaPxA != 0.000180 || sigmaPyA != 0.000180 || sigmaPzA != 0.00097) localKill = 1;
+	  if(sigmaPxB != 0.000140 || sigmaPyB != 0.000140 || sigmaPzB != 0.00068) localKill = 1;
+	  if(sigmaVertexX != 0.101 || sigmaVertexY != 0.009) localKill = 1;
+	}
+    }
+  if(mIonBeamEnergy == 41.0 && mLeptonBeamEnergy == 5.0)
+    {
+      if(mDivAcc == 1)
+	{
+	  if(sigmaPxA != 0.000220 || sigmaPyA != 0.000380 || sigmaPzA != 0.00103) localKill = 1;
+	  if(sigmaPxB != 0.000101 || sigmaPyB != 0.000129 || sigmaPzB != 0.00068) localKill = 1;
+	  if(sigmaVertexX != 0.140 || sigmaVertexY != 0.019) localKill = 1;
+	}
+      if(mDivAcc == 2)
+	{
+	  if(sigmaPxA != 0.000220 || sigmaPyA != 0.000380 || sigmaPzA != 0.00103) localKill = 1;
+	  if(sigmaPxB != 0.000101 || sigmaPyB != 0.000129 || sigmaPzB != 0.00068) localKill = 1;
+	  if(sigmaVertexX != 0.140 || sigmaVertexY != 0.019) localKill = 1;
+	}
+    }
+
+  if(localKill == 1)
+    {
+      cout << "Steering File and Input Energy Mismatch" << endl;
+      cout << "Turning off all beam effects" << endl;
+    }
+
+
+  //=============================================
+  // Reset for Bad Energy Combinations
+  //=============================================
+  if(mKill == 1 || localKill == 1)
+    {
+      deltaPxA = deltaPyA = deltaPzA = deltaPxB = deltaPyB = deltaPzB = vertexX = vertexY = vertexZ = vertexT = 0.;
     }
 }
 

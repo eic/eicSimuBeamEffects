@@ -28,6 +28,7 @@ class eicBeamShape : public BeamShape {
   double mIonBeamEnergy;
   double mLeptonBeamEnergy;
   double mXAngle;
+  int mKill;
 
 };
 
