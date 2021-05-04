@@ -17,6 +17,7 @@ using std::string;
 #include "TFile.h"
 #include "TH1.h"
 #include "TH2.h"
+#include "TH3.h"
 #include "TMath.h"
 #include "TVector2.h"
 
@@ -28,16 +29,25 @@ int main(int argc, char* argv[])
 {
   //const char* steerFile = 
 
-  if(argc != 3)
+  if(argc != 7)
     {
       cerr << "Wrong number of arguments" << endl;
-      cerr << "program.exe steer out.hist.root" << endl;
+      cerr << "program.exe steer configuration hadronE leptonE xangle out.hist.root" << endl;
       exit(EXIT_FAILURE);
     }
 
-  const char* rootOut = argv[2];
+  const int config = atoi(argv[2]);
+  const double hadE = atof(argv[3]);
+  const double lepE = atof(argv[4]);
+  const double xing = atof(argv[5]);
+  const char* rootOut = argv[6];
 
   cout << "Steering File = " << argv[1] << endl;
+  if(config == 1) cout << "Configuration = High Divergence" << endl;
+  if(config == 2) cout << "Configuration = High Acceptance" << endl; 
+  cout << "Hadron Energy = " << hadE << endl;
+  cout << "Lepton Energy = " << lepE << endl;
+  cout << "Beam Crossing Angle (miliradians) = " << xing << endl;
   cout << "Root Output = " << rootOut << endl;
 
   // Open Root File
@@ -51,11 +61,11 @@ int main(int argc, char* argv[])
   // Beam Shape
   TH1D *eCM = new TH1D("eCM","Modified - Nominal CM Energy",10000,-0.05,0.05);
   TH2D *pXY1 = new TH2D("pXY1","Hadron Beam Py Vs Px",10000,-10.0,10.0,10000,-10.0,10.0);
-  TH2D *pXZProd1 = new TH2D("pXZProd1","Hadron Beam Px Vs Vertex z",100,-40.,40.,10000,-10.0,10.0);
-  TH2D *pYZProd1 = new TH2D("pYZProd1","Hadron Beam Py Vs Vertex z",100,-40.,40.,10000,-10.0,10.0);
+  TH2D *pXZProd1 = new TH2D("pXZProd1","Hadron Beam Px Vs Vertex z",5000,-500.,500.,10000,-10.0,10.0);
+  TH2D *pYZProd1 = new TH2D("pYZProd1","Hadron Beam Py Vs Vertex z",5000,-500.,500.,10000,-10.0,10.0);
   TH2D *pXY2 = new TH2D("pXY2","Lepton Beam Py Vs Px",10000,-10.0,10.0,10000,-10.0,10.0);
-  TH2D *pXZProd2 = new TH2D("pXZProd2","Lepton Beam Px Vs Vertex z",100,-40.,40.,10000,-10.0,10.0);
-  TH2D *pYZProd2 = new TH2D("pYZProd2","Lepton Beam Py Vs Vertex z",100,-40.,40.,10000,-10.0,10.0);
+  TH2D *pXZProd2 = new TH2D("pXZProd2","Lepton Beam Px Vs Vertex z",5000,-500.,500.,10000,-10.0,10.0);
+  TH2D *pYZProd2 = new TH2D("pYZProd2","Lepton Beam Py Vs Vertex z",5000,-500.,500.,10000,-10.0,10.0);
   TH1D *pZ1 = new TH1D("pZ1","Hadron Beam Pz",10000,270.0,280.0);
   TH1D *pZ2 = new TH1D("pZ2","Lepton Beam Pz",10000,-18.05,-17.95);
 
@@ -63,10 +73,19 @@ int main(int argc, char* argv[])
   TH1D *atan2PyPz1Hist = new TH1D("atan2PyPz1","",500,-0.001,0.001);
   TH1D *atan2PyPtot1Hist = new TH1D("atan2PyPtot1","",500,-0.001,0.001);
 
-  TH1D *vtxX = new TH1D("vtxX","Vertex x",100,-1.0,1.0);
-  TH1D *vtxY = new TH1D("vtxY","Vertex y",100,-1.0,1.0);
-  TH1D *vtxZ = new TH1D("vtxZ","Vertex z",100,-40.0,40.0);
-  TH1D *vtxT = new TH1D("vtxT","Time",100,-100.0,100.0);
+  TH1D *vtxX = new TH1D("vtxX","Vertex x;[mm]",5000,-5.0,5.0);
+  TH1D *vtxY = new TH1D("vtxY","Vertex y;[mm]",5000,-5.0,5.0);
+  TH1D *vtxZ = new TH1D("vtxZ","Vertex z;[mm]",5000,-500.0,500.0);
+  TH1D *vtxT = new TH1D("vtxT","Time;[mm]",5000,-500.0,500.0);
+  TH2D *vtxYvsX = new TH2D("vtxYvsX","Vertex Y vs X;X [mm];Y [mm]",5000,-5.0,5.0,5000,-5.0,5.0);
+  TH2D *vtxXvsT = new TH2D("vtxXvsT","Vertex X vs T;T [mm];X [mm]",5000,-500.0,500.0,5000,-5.0,5.0);
+  TH2D *vtxXvsZ = new TH2D("vtxXvsZ","Vertex X vs Z;Z [mm];X [mm]",5000,-500.0,500.0,5000,-5.0,5.0);
+  TH2D *vtxYvsZ = new TH2D("vtxYvsZ","Vertex Y vs Z;Z [mm];Y [mm]",5000,-500.0,500.0,5000,-5.0,5.0);
+  TH2D *vtxTvsZ = new TH2D("vtxTvsZ","Interaction Time Vs Z-vertex;Z [mm];T [mm]",5000,-500.0,500.0,5000,-500.0,500.0);
+  TH2D *vtxXvsTZSum = new TH2D("vtxXvsTZSum","Vertex X vs T+Z;T+Z [mm];X [mm]",5000,-500.,500.,5000,-5.,5.);
+  TH2D *vtxXvsTZDiff = new TH2D("vtxXvsTZDiff","Vertex X vs T-Z;T-Z [mm];X [mm]",5000,-500.,500.,5000,-5.,5.);
+  
+  TH2D *lepVsHadPartZ = new TH2D("lepVsHadPartZ","Intrabunch Z Positions of Colliding Leptons Vs Hadrons",5000,-500.0,500.0,5000,-500.0,500.0);
 
   // Particle Quantities
   TH1D *partPtHist = new TH1D("partPt","Final State Particle Pt",500,0.,50.);
@@ -145,7 +164,7 @@ TH2D *jetPtVsPtNoCutHist = new TH2D("jetPtVsPtNoCut","Jet Pt Vs Parton Pt",500,0
   Pythia8::Event &event = p8.event;
 
   // A class to generate beam parameters according to own parametrization.
-  BeamShapePtr myBeamShape = make_shared<eicBeamShape>(275.0,18.0,0.025,0.0030,-0.0015);
+  BeamShapePtr myBeamShape = make_shared<eicBeamShape>(config,hadE,lepE,xing);
 
   // Hand pointer to Pythia.
   // If you comment this out you get internal Gaussian-style implementation.
@@ -201,18 +220,36 @@ TH2D *jetPtVsPtNoCutHist = new TH2D("jetPtVsPtNoCut","Jet Pt Vs Parton Pt",500,0
       vtxY->Fill(p8.process[0].yProd());
       vtxZ->Fill(p8.process[0].zProd());
       vtxT->Fill(p8.process[0].tProd());
+      vtxYvsX->Fill(p8.process[0].xProd(),p8.process[0].yProd());
+      vtxXvsT->Fill(p8.process[0].tProd(),p8.process[0].xProd());
+      vtxXvsZ->Fill(p8.process[0].zProd(),p8.process[0].xProd());
+      vtxYvsZ->Fill(p8.process[0].zProd(),p8.process[0].yProd());
+      vtxTvsZ->Fill(p8.process[0].zProd(),p8.process[0].tProd());
+
+      vtxXvsTZSum->Fill(p8.process[0].tProd()+p8.process[0].zProd(),p8.process[0].xProd());
+      vtxXvsTZDiff->Fill(p8.process[0].tProd()-p8.process[0].zProd(),p8.process[0].xProd());
+
+      double hadZ = p8.process[0].zProd() - TMath::Cos(0.0125)*p8.process[0].tProd();
+      double lepZ = p8.process[0].zProd() + TMath::Cos(0.0125)*p8.process[0].tProd();
+      lepVsHadPartZ->Fill(hadZ,lepZ);
+
 
       // Four-momenta of proton, electron, virtual photon/Z^0/W^+-.
       Pythia8::Vec4 pProton = event[1].p();
       Pythia8::Vec4 peIn    = event[4].p();
+      //Pythia8::Vec4 peInAlt = event[2].p();
       Pythia8::Vec4 peOut   = event[6].p();
       Pythia8::Vec4 pPhoton = peIn - peOut;
+      //Pythia8::Vec4 pPhotonAlt = peInAlt - peOut;
 
       // Q2, W2, Bjorken x, y.
       double Q2    = - pPhoton.m2Calc();
+      //double Q2Alt = -pPhotonAlt.m2Calc();
       double W2    = (pProton + pPhoton).m2Calc();
       double x     = Q2 / (2. * pProton * pPhoton);
+      //double xAlt  = Q2Alt / (2. * pProton * pPhotonAlt);
       double y     = (pProton * pPhoton) / (pProton * peIn);
+      //double yAlt  = (pProton * pPhotonAlt) / (pProton * peInAlt);
       double jetPt = event[5].pT();
       double jetEta = event[5].eta();
       double jetPhi = event[5].phi();
@@ -223,6 +260,11 @@ TH2D *jetPtVsPtNoCutHist = new TH2D("jetPtVsPtNoCut","Jet Pt Vs Parton Pt",500,0
       double jetKtPhi = event[8].phi();
 
       //if(Q2 < 10.0) cout << "Low Q2: " << Q2 << endl;
+
+      //cout << setprecision(10) << eCMnom << " " << eCMnow << " " << Q2 << " " << x << " " << y << " " <<  p8.info.x1pdf() << " " << p8.info.x2pdf() << " " << p8.info.Q2Fac() << " " << p8.info.Q2Ren() << " " << p8.info.pT2Hat() << endl;
+      //cout << setprecision(10) << Q2Alt << " " << xAlt << " " << yAlt << endl;
+      //cout << setprecision(10) << eCMnom*eCMnom*x*y << " " << eCMnow*eCMnow*x*y << endl;
+      //cout << endl;
 
       // Event Level
       q2Hist->Fill(std::log10(Q2));
@@ -241,6 +283,8 @@ TH2D *jetPtVsPtNoCutHist = new TH2D("jetPtVsPtNoCut","Jet Pt Vs Parton Pt",500,0
 	  double py = p8.event[i].py();
 	  double pz = p8.event[i].pz();
 	  double E = p8.event[i].e();
+
+	  //cout << i << " " << p8.event[i].id() << " " << partPt << " " << partEta << " " << partPhi << endl;
 
 	  if(partFin && partEta>-10.0 && partEta<10.0 && y<0.95 && y>0.01 && i > 7)
 	    {
