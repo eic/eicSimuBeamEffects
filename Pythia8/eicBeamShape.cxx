@@ -8,35 +8,146 @@
 
 using namespace Pythia8;
 
-eicBeamShape::eicBeamShape(double ion, double lepton, double xAngle, double hadCrab, double lepCrab) 
+eicBeamShape::eicBeamShape(int config, double ion, double lepton, double xAngle) 
   {
+    mDivAcc = config;
     mIonBeamEnergy = ion;
     mLeptonBeamEnergy = lepton;
     mXAngle = xAngle;
-    mHadronCrabSize = hadCrab;
-    mLeptonCrabSize = lepCrab;
+    mKill == 0;
+
+    // Ensure Beam Energies Correspond to Those Presented in CDR
+    if(ion != 275.0 && ion != 100.0 && ion != 41.0) 
+      {
+	cout << ion << " is not a valid Hadron Beam Energy!!" << endl;
+	cout << "Valid Energies are 275.0, 100.0, and 41.0" << endl;
+	cout << "Turning off all beam effects" << endl;
+	mKill = 1;
+      }
+    if(lepton != 18.0 && lepton != 10.0 && lepton != 5.0) 
+      {
+	cout << lepton << " is not a valid Lepton Beam Energy!!" << endl;
+	cout << "Valid Energies are 18.0, 10.0, and 5.0" << endl;
+	cout << "Turning off all beam effects" << endl;
+	mKill = 1;
+      }
+
+    // Ensure Beam Energy Combinations Correspond to Those Presented in CDR
+    if(ion == 275.0 && (lepton != 18.0 && lepton != 10.0))
+      {
+	cout << lepton << "x" << ion << " is not a valid energy combination!!" << endl;
+	cout << "Valid Combinations are 18x275, 10x275, 10x100, 5x100, and 5x41" << endl;
+	cout << "Turning off all beam effects" << endl;
+	mKill = 1;
+      }
+    if(ion == 100.0 &&(lepton != 10.0 && lepton != 5.0))
+      {
+	cout << lepton << "x" << ion << " is not a valid energy combination!!" << endl;
+	cout << "Valid Combinations are 18x275, 10x275, 10x100, 5x100, and 5x41" << endl;
+	cout << "Turning off all beam effects" << endl;
+	mKill = 1;
+      }
+    if(ion == 41.0 && lepton != 5.0)
+      {
+	cout << lepton << "x" << ion << " is not a valid energy combination!!" << endl;
+	cout << "Valid Combinations are 18x275, 10x275, 10x100, 5x100, and 5x41" << endl;
+	cout << "Turning off all beam effects" << endl;
+	mKill = 1;
+      }
   }
 
 void eicBeamShape::pick() {
 
-  // Reset all values.
+  //=============================================
+  // (Re)set Values
+  //=============================================
+
   deltaPxA = deltaPyA = deltaPzA = deltaPxB = deltaPyB = deltaPzB
     = vertexX = vertexY = vertexZ = vertexT = 0.;
+
+
+  //=============================================
+  // Set Collision Vertex and Time
+  //=============================================
+
+  // Collision vertex and time are determined by randomly sampling the z-positions of the interacting lepton and hadron within their respective bunches. Assume z=0 is middle of bunch, hadron bunch moves left to right and lepton bunch moves right to left, positive z within hadron bunch is in direction of travel and positive z within lepton bunch is opposite direction of travel
+
+  //double xIPOffset = 0.;
+  double hadronPartPos = 0.;
+  double leptonPartPos = 0.;
+
+  if(allowVertexSpread)
+    {
+      // RMS Bunch Length [mm] (CDR Table 3.3 & 3.4)
+      double hadronBL = 0.;
+      double leptonBL = 0.;
+      
+      // Set different values depending on energy
+      if(mIonBeamEnergy == 275.0) hadronBL = 60.0;
+      if(mIonBeamEnergy == 100.0) hadronBL = 70.0;
+      if(mIonBeamEnergy == 41.0)  hadronBL = 75.0;
+      if(mLeptonBeamEnergy == 18.0) leptonBL = 9.0;
+      if(mLeptonBeamEnergy == 10.0) leptonBL = 7.0;
+      if(mLeptonBeamEnergy == 5.0)  leptonBL = 7.0;
+      
+      // Set particle positions
+      hadronPartPos = hadronBL*rndmPtr->gauss();
+      leptonPartPos = leptonBL*rndmPtr->gauss();
+
+      // Find Collision time, z position of collision, z position of center of hadron bunch at collision time and x position of collision
+      // Quantities are found via a system of parametric equations
+      // Z position of colliding hadron as a function of time: Z_h = Cos(0.5*theta_c)*t + Z_h_offset (Z_h_offset = distance from center of bunch)
+      // Z position of colliding lepton as a function of time: Z_l = -Cos(0.5*theta_c)*t + Z_l_offset
+      // Collision time when Z_h = Z_l -> t_int = (Z_l_offset - Z_h_offset)/(2*Cos(0.5*theta_c))
+      // Z position of collision: Z_int = (Z_l_offset + Z_h_offset)/2
+      // Z position of center of hadron bunch a collision time - this gives x position of collision via relation x = z*Tan(0.5*theta_c)
+      // Z_bunch_int = Cos(0.5*theta_c)*t_int
+      // X_int = Z_bunch_int * Tan(0.5*theta_c)
+
+      double c_c = TMath::Cos(mXAngle/2.0);
+      double s_c = TMath::Sin(mXAngle/2.0);
+      double t_c = TMath::Tan(mXAngle/2.0);
+
+      double t_int = (leptonPartPos - hadronPartPos)/(2.0*c_c);
+      double z_int = (leptonPartPos + hadronPartPos)/2.0;
+      double z_bunch_int = c_c*t_int;
+      double x_int = z_bunch_int*t_c;
+
+      // x_int is the x position of collision assuming the colliding particles are in the center of the bunch. Sample random x position according to x-width of bunches. x_int is then an offset to this. Get y position as well.
+
+      double y_int = 0.;
+      if(sigmaVertexX > 0.)
+	{
+	  x_int += sigmaVertexX * rndmPtr->gauss();
+	}
+
+      if(sigmaVertexY > 0.)
+	{
+	  y_int += sigmaVertexY * rndmPtr->gauss();
+	}
+
+      // We now have the x-y-z position of the collision in the accelerator frame, but we want it in the detector frame. Rotate by 0.5*theta_c to get to accelerator frame
+
+      double tmpVtxX, tmpVtxY, tmpVtxZ;
+      tmpVtxX = tmpVtxY = tmpVtxZ = 0.;
+
+      RotY(mXAngle/2.0,x_int,y_int,z_int,&tmpVtxX,&tmpVtxY,&tmpVtxZ);
+
+      vertexT = t_int;
+      vertexX = tmpVtxX;
+      vertexY = tmpVtxY;
+      vertexZ = tmpVtxZ;
+    }
+
+
+  //=============================================
+  // Smear Beam Energy
+  //=============================================
 
   // Change in Beam Pz
   double tmpPzA, tmpPzB;
   tmpPzA = tmpPzB = 0.;
 
-  // Set beam vertex location by a two-dimensional Gaussian.
-  if(allowVertexSpread) 
-    {
-      if(sigmaVertexZ > 0.) 
-	{
-	  vertexZ = sigmaVertexZ * rndmPtr->gauss();
-	}
-    }
-
-  // Smear Beam Energy to Set Scale of Other Effects
   if(allowMomentumSpread)
     {
       double gaussZA, gaussZB;
@@ -51,7 +162,15 @@ void eicBeamShape::pick() {
 	  gaussZB = rndmPtr->gauss();
 	  //tmpPzB = mLeptonBeamEnergy * (sigmaPzB * gaussZB);
 	}
+    }
 
+
+  //=============================================
+  // Crossing Angle Effects
+  //=============================================
+
+  if(allowMomentumSpread)
+    {
       // Modify Px Due to Crossing Angle
       deltaPxA += (mIonBeamEnergy + tmpPzA)*TMath::Sin(mXAngle);
 
@@ -63,13 +182,14 @@ void eicBeamShape::pick() {
       deltaPzB += tmpPzB;
     }
 
+
+  //=============================================
+  // Divergence Effects
+  //=============================================
+
   if(allowMomentumSpread) // allowMomentumSpread
     {
       double gaussXA, gaussYA, gaussXB, gaussYB;
-
-      // Implement Z-Dependent Momentum Kicks from Crabbing
-      //deltaPxA += mHadronCrabSize*vertexZ;
-      //deltaPxB += mLeptonCrabSize*vertexZ;
 
       if(sigmaPxA > 0.)
 	{
@@ -77,9 +197,15 @@ void eicBeamShape::pick() {
 	  gaussXA = rndmPtr->gauss();
 	  double div = sigmaPxA * gaussXA;
 	  double pxLocal = (mIonBeamEnergy + tmpPzA)*TMath::Sin(div); // Dispersion in Beam Frame
-	  deltaPxA += pxLocal*TMath::Cos(mXAngle); // Compensate for Crossing Angle to Lab Frame
 
-	  deltaPzA += pxLocal*TMath::Sin(mXAngle); // Projection of the x component of divergence onto the z-axis due to the crossing angle
+	  // Rotate into Detector Frame
+	  double divPxA, divPyA, divPzA;
+	  divPxA = divPyA = divPzA = 0.;
+
+	  RotY(mXAngle,pxLocal,0.,0.,&divPxA,&divPyA,&divPzA);
+
+	  deltaPxA += divPxA;
+	  deltaPzA += divPzA;
 	}
       if(sigmaPyA > 0.)
 	{
@@ -104,4 +230,188 @@ void eicBeamShape::pick() {
 	  deltaPyB += (mLeptonBeamEnergy + tmpPzB)*TMath::Sin(div);
 	}
     }
+
+
+  //=============================================
+  // Crabbing Momentum Kicks
+  //=============================================
+
+  if(allowMomentumSpread)
+    {
+      // Assign Crab and IP Beta Functions for Different Beam Energies [mm] (CDR Tab 3.3 & 3.4 and Elke)
+      double betaCrabHad = 0.;
+      double betaStarHad = 0.; // In horizontal direction
+
+      if(mIonBeamEnergy == 275.0) betaCrabHad = 1300000.0;
+      if(mIonBeamEnergy == 100.0) betaCrabHad = 500000.0;
+      if(mIonBeamEnergy == 41.0)  betaCrabHad = 200000.0;
+      if(mDivAcc == 1) // High Divergence Config - CDR Table 3.3
+	{
+	  if(mIonBeamEnergy == 275.0) betaStarHad = 800.0;
+	  if(mIonBeamEnergy == 100.0 && mLeptonBeamEnergy == 10.0) betaStarHad = 630.0; // For root[s] = 63.2
+	  if(mIonBeamEnergy == 100.0 && mLeptonBeamEnergy == 5.0)  betaStarHad = 610.0; // For root[s] = 44.7
+	  if(mIonBeamEnergy == 41.0)  betaStarHad = 900.0;
+	}
+      if(mDivAcc == 2) // High Acceptance Config - CDR Table 3.4
+	{
+	  if(mIonBeamEnergy == 275.0 && mLeptonBeamEnergy == 18.0) betaStarHad = 4170.0; // For root[s] = 140.7
+	  if(mIonBeamEnergy == 275.0 && mLeptonBeamEnergy == 10.0) betaStarHad = 2650.0; // For root[s] = 104.9
+	  if(mIonBeamEnergy == 100.0 && mLeptonBeamEnergy == 10.0) betaStarHad = 940.0; // For root[s] = 63.2
+	  if(mIonBeamEnergy == 100.0 && mLeptonBeamEnergy == 5.0)  betaStarHad = 800.0; // For root[s] = 44.7
+	  if(mIonBeamEnergy == 41.0 && mLeptonBeamEnergy == 5.0)   betaStarHad = 900.0; // For root[s] = 28.6
+	}
+
+      double betaCrabLep = 0.;
+      double betaStarLep = 0.;
+      if(mLeptonBeamEnergy == 18.0) betaCrabLep = 150000.0;
+      if(mLeptonBeamEnergy == 10.0) betaCrabLep = 150000.0;
+      if(mLeptonBeamEnergy == 5.0)  betaCrabLep = 150000.0;
+      if(mDivAcc == 1) // High Divergence Config - CDR Table 3.3
+	{
+	  if(mLeptonBeamEnergy == 18.0) betaStarLep = 590.0;
+	  if(mLeptonBeamEnergy == 10.0 && mIonBeamEnergy == 275.0) betaStarLep = 450.0; // For root[s] = 104.9
+	  if(mLeptonBeamEnergy == 10.0 && mIonBeamEnergy == 100.0) betaStarLep = 960.0; // For root[s] = 63.2
+	  if(mLeptonBeamEnergy == 5.0 && mIonBeamEnergy == 100.0)  betaStarLep = 780.0; // For root[s] = 44.7
+	  if(mLeptonBeamEnergy == 5.0 && mIonBeamEnergy == 41.0)   betaStarLep = 1960.0; // For root[s] = 28.6
+	}
+      if(mDivAcc == 2) // High Acceptance Config - CDR Table 3.4
+	{
+	  if(mLeptonBeamEnergy == 18.0) betaStarLep = 3060.0;
+	  if(mLeptonBeamEnergy == 10.0 && mIonBeamEnergy == 275.0) betaStarLep = 1490.0; // For root[s] = 104.9
+	  if(mLeptonBeamEnergy == 10.0 && mIonBeamEnergy == 100.0) betaStarLep = 1430.0; // For root[s] = 63.2
+	  if(mLeptonBeamEnergy == 5.0 && mIonBeamEnergy == 100.0)  betaStarLep = 1030.0; // For root[s] = 44.7
+	  if(mLeptonBeamEnergy == 5.0 && mIonBeamEnergy == 41.0)   betaStarLep = 1960.0; // For root[s] = 28.6 
+	}
+
+      //double betaCrabHad = 1300000.0; // Beta Crab in mm for 275 hadron beam
+      //double betaStarHad = 800.0; // Beta Star in mm for 275 hadron beam
+
+      //double betaCrabLep = 150000.0; // Beta Crab in mm for 18 lepton beam
+      //double betaStarLep = 590.0; // Beta Star in mm for 18 lepton beam
+
+      // Calculate angular deflection
+      double crabAngHad = ((mXAngle/2.0)*hadronPartPos)/(TMath::Sqrt(betaCrabHad*betaStarHad));
+      double crabAngLep = ((mXAngle/2.0)*leptonPartPos)/(TMath::Sqrt(betaCrabLep*betaStarLep));
+
+      // Calculate Magnitude of Px kick
+      double crabKickHad = (mIonBeamEnergy + tmpPzA)*TMath::Sin(crabAngHad);
+      double crabKickLep = (-1.0)*(mLeptonBeamEnergy + tmpPzB)*TMath::Sin(crabAngLep); // 
+
+      // Rotate Momentum Kick into Detector Frame
+      double tmpVertPxA, tmpVertPyA, tmpVertPzA;
+      double tmpVertPxB, tmpVertPyB, tmpVertPzB;
+      tmpVertPxA = tmpVertPyA = tmpVertPzA = tmpVertPxB = tmpVertPyB = tmpVertPzB = 0.;
+
+      RotY(mXAngle/2.0,crabKickHad,0.,0.,&tmpVertPxA,&tmpVertPyA,&tmpVertPzA);
+      RotY(mXAngle/2.0,crabKickLep,0.,0.,&tmpVertPxB,&tmpVertPyB,&tmpVertPzB);
+
+      deltaPxA += tmpVertPxA;
+      deltaPzA += tmpVertPzA;
+      deltaPxB += tmpVertPxB;
+      deltaPzB += tmpVertPzB;
+    }
+
+
+  //=============================================
+  // Reset for Input to Steering File Mismatch
+  //=============================================
+  int localKill = 0;
+  if(mIonBeamEnergy == 275.0 && mLeptonBeamEnergy == 18.0)
+    {
+      if(mDivAcc == 1)
+	{
+	  if(sigmaPxA != 0.000150 || sigmaPyA != 0.000150 || sigmaPzA != 0.00068) localKill = 1;
+	  if(sigmaPxB != 0.000202 || sigmaPyB != 0.000187 || sigmaPzB != 0.00109) localKill = 1;
+	  if(sigmaVertexX != 0.084 || sigmaVertexY != 0.008) localKill = 1;
+	}
+      if(mDivAcc == 2)
+	{
+	  if(sigmaPxA != 0.000065 || sigmaPyA != 0.000065 || sigmaPzA != 0.00068) localKill = 1;
+	  if(sigmaPxB != 0.000089 || sigmaPyB != 0.000082 || sigmaPzB != 0.00109) localKill = 1;
+	  if(sigmaVertexX != 0.192 || sigmaVertexY != 0.017) localKill = 1;
+	}
+    }
+  if(mIonBeamEnergy == 275.0 && mLeptonBeamEnergy == 10.0)
+    {
+      if(mDivAcc == 1)
+	{
+	  if(sigmaPxA != 0.000119 || sigmaPyA != 0.000119 || sigmaPzA != 0.00068) localKill = 1;
+	  if(sigmaPxB != 0.000211 || sigmaPyB != 0.000152 || sigmaPzB != 0.00058) localKill = 1;
+	  if(sigmaVertexX != 0.067 || sigmaVertexY != 0.006) localKill = 1;
+	}
+      if(mDivAcc == 2)
+	{
+	  if(sigmaPxA != 0.000065 || sigmaPyA != 0.000065 || sigmaPzA != 0.00068) localKill = 1;
+	  if(sigmaPxB != 0.000116 || sigmaPyB != 0.000084 || sigmaPzB != 0.00058) localKill = 1;
+	  if(sigmaVertexX != 0.122 || sigmaVertexY != 0.011) localKill = 1;
+	}
+    }
+  if(mIonBeamEnergy == 100.0 && mLeptonBeamEnergy == 10.0)
+    {
+      if(mDivAcc == 1)
+	{
+	  if(sigmaPxA != 0.000220 || sigmaPyA != 0.000220 || sigmaPzA != 0.00097) localKill = 1;
+	  if(sigmaPxB != 0.000145 || sigmaPyB != 0.000105 || sigmaPzB != 0.00058) localKill = 1;
+	  if(sigmaVertexX != 0.098 || sigmaVertexY != 0.008) localKill = 1;
+	}
+      if(mDivAcc == 2)
+	{
+	  if(sigmaPxA != 0.000180 || sigmaPyA != 0.000180 || sigmaPzA != 0.00097) localKill = 1;
+	  if(sigmaPxB != 0.000118 || sigmaPyB != 0.000086 || sigmaPzB != 0.00058) localKill = 1;
+	  if(sigmaVertexX != 0.120 || sigmaVertexY != 0.011) localKill = 1;
+	}
+    }
+  if(mIonBeamEnergy == 100.0 && mLeptonBeamEnergy == 5.0)
+    {
+      if(mDivAcc == 1)
+	{
+	  if(sigmaPxA != 0.000206 || sigmaPyA != 0.000206 || sigmaPzA != 0.00097) localKill = 1;
+	  if(sigmaPxB != 0.000160 || sigmaPyB != 0.000160 || sigmaPzB != 0.00068) localKill = 1;
+	  if(sigmaVertexX != 0.088 || sigmaVertexY != 0.008) localKill = 1;
+	}
+      if(mDivAcc == 2)
+	{
+	  if(sigmaPxA != 0.000180 || sigmaPyA != 0.000180 || sigmaPzA != 0.00097) localKill = 1;
+	  if(sigmaPxB != 0.000140 || sigmaPyB != 0.000140 || sigmaPzB != 0.00068) localKill = 1;
+	  if(sigmaVertexX != 0.101 || sigmaVertexY != 0.009) localKill = 1;
+	}
+    }
+  if(mIonBeamEnergy == 41.0 && mLeptonBeamEnergy == 5.0)
+    {
+      if(mDivAcc == 1)
+	{
+	  if(sigmaPxA != 0.000220 || sigmaPyA != 0.000380 || sigmaPzA != 0.00103) localKill = 1;
+	  if(sigmaPxB != 0.000101 || sigmaPyB != 0.000129 || sigmaPzB != 0.00068) localKill = 1;
+	  if(sigmaVertexX != 0.140 || sigmaVertexY != 0.019) localKill = 1;
+	}
+      if(mDivAcc == 2)
+	{
+	  if(sigmaPxA != 0.000220 || sigmaPyA != 0.000380 || sigmaPzA != 0.00103) localKill = 1;
+	  if(sigmaPxB != 0.000101 || sigmaPyB != 0.000129 || sigmaPzB != 0.00068) localKill = 1;
+	  if(sigmaVertexX != 0.140 || sigmaVertexY != 0.019) localKill = 1;
+	}
+    }
+
+  if(localKill == 1)
+    {
+      cout << "Steering File and Input Energy Mismatch" << endl;
+      cout << "Turning off all beam effects" << endl;
+    }
+
+
+  //=============================================
+  // Reset for Bad Energy Combinations
+  //=============================================
+  if(mKill == 1 || localKill == 1)
+    {
+      deltaPxA = deltaPyA = deltaPzA = deltaPxB = deltaPyB = deltaPzB = vertexX = vertexY = vertexZ = vertexT = 0.;
+    }
+}
+
+
+void eicBeamShape::RotY(double theta, double xin, double yin, double zin, double *xout, double *yout, double *zout) {
+
+  *xout = xin*TMath::Cos(theta) + zin*TMath::Sin(theta);
+  *yout = yin;
+  *zout = zin*TMath::Cos(theta) - xin*TMath::Sin(theta);
 }
