@@ -59,19 +59,21 @@ int main(int argc, char* argv[])
   TH2D *phaseSpaceHist = new TH2D("phaseSpaceHist","Log Q2 Vs Log x",100,-4.,1.,100,0.,5.);
 
   // Beam Shape
-  TH1D *eCM = new TH1D("eCM","Modified - Nominal CM Energy",10000,-0.05,0.05);
+  TH1D *eCM = new TH1D("eCM","Modified - Nominal CM Energy",10000,-1.0,1.0);
   TH2D *pXY1 = new TH2D("pXY1","Hadron Beam Py Vs Px",10000,-10.0,10.0,10000,-10.0,10.0);
   TH2D *pXZProd1 = new TH2D("pXZProd1","Hadron Beam Px Vs Vertex z",5000,-500.,500.,10000,-10.0,10.0);
   TH2D *pYZProd1 = new TH2D("pYZProd1","Hadron Beam Py Vs Vertex z",5000,-500.,500.,10000,-10.0,10.0);
   TH2D *pXY2 = new TH2D("pXY2","Lepton Beam Py Vs Px",10000,-10.0,10.0,10000,-10.0,10.0);
   TH2D *pXZProd2 = new TH2D("pXZProd2","Lepton Beam Px Vs Vertex z",5000,-500.,500.,10000,-10.0,10.0);
   TH2D *pYZProd2 = new TH2D("pYZProd2","Lepton Beam Py Vs Vertex z",5000,-500.,500.,10000,-10.0,10.0);
-  TH1D *pZ1 = new TH1D("pZ1","Hadron Beam Pz",10000,270.0,280.0);
-  TH1D *pZ2 = new TH1D("pZ2","Lepton Beam Pz",10000,-18.05,-17.95);
+  TH1D *pZ1 = new TH1D("pZ1","Hadron Beam Pz",10000,0.0,280.0);
+  TH1D *pZ2 = new TH1D("pZ2","Lepton Beam Pz",10000,-20.0,0.);
 
-  TH1D *atan2PxPz1Hist = new TH1D("atan2PxPz1","",500,0.02,0.03);
-  TH1D *atan2PyPz1Hist = new TH1D("atan2PyPz1","",500,-0.001,0.001);
+  TH1D *atan2PxPz1Hist = new TH1D("atan2PxPz1","",2500,0.0,0.05);
+  TH1D *atan2PyPz1Hist = new TH1D("atan2PyPz1","",2500,-0.01,0.01);
   TH1D *atan2PyPtot1Hist = new TH1D("atan2PyPtot1","",500,-0.001,0.001);
+  TH1D *atan2PxPz2Hist = new TH1D("atan2PxPz2","",2500,-0.01,0.01);
+  TH1D *atan2PyPz2Hist = new TH1D("atan2PyPz2","",2500,-0.01,0.01);
 
   TH1D *vtxX = new TH1D("vtxX","Vertex x;[mm]",5000,-5.0,5.0);
   TH1D *vtxY = new TH1D("vtxY","Vertex y;[mm]",5000,-5.0,5.0);
@@ -201,6 +203,8 @@ TH2D *jetPtVsPtNoCutHist = new TH2D("jetPtVsPtNoCut","Jet Pt Vs Parton Pt",500,0
       vector<PseudoJet> particlesNoCut;
       //vector<PseudoJet> particlesCut;
 
+      //cout << p8.process[0].zProd() << " " << p8.process[1].zProd() << " " << p8.process[2].zProd() << endl;
+
       // Beam Shape
       eCM->Fill(eCMnow - eCMnom);
       pXY1->Fill(p8.process[1].px(),p8.process[1].py());
@@ -215,6 +219,9 @@ TH2D *jetPtVsPtNoCutHist = new TH2D("jetPtVsPtNoCut","Jet Pt Vs Parton Pt",500,0
       atan2PxPz1Hist->Fill(TMath::ATan2(p8.process[1].px(),p8.process[1].pz()));
       atan2PyPz1Hist->Fill(TMath::ATan2(p8.process[1].py(),p8.process[1].pz()));
       atan2PyPtot1Hist->Fill(TMath::ATan2(p8.process[1].py(),p8.process[1].pAbs()));
+
+      atan2PxPz2Hist->Fill(TMath::ATan2(p8.process[2].px(),(-1.0)*p8.process[2].pz()));
+      atan2PyPz2Hist->Fill(TMath::ATan2(p8.process[2].py(),(-1.0)*p8.process[2].pz()));
       
       vtxX->Fill(p8.process[0].xProd());
       vtxY->Fill(p8.process[0].yProd());

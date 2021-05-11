@@ -4,12 +4,13 @@ TFile *fc=0;
 TFile *fd=0;
 TFile *fe=0;
 TFile *ff=0;
+TFile *wrk=0;
 
 TCanvas *c[30];
 
 //TString outFileName;
 
-int plotBeamShape()
+int plotBeamShape(TString path="rootFiles/testDefault_new.hist.root")
 {
 
   //gStyle->SetPalette(1,0);
@@ -23,13 +24,15 @@ int plotBeamShape()
   TString rootHistFnameD;
   TString rootHistFnameE;
   TString rootHistFnameF;
+  TString rootHistFnameWrk;
 
-  rootHistFnameA="testDefault_new.hist.root";
+  rootHistFnameA="rootFiles/testDefault_new.hist.root";
   rootHistFnameB="rootFiles/testXing.hist.root";
   rootHistFnameC="rootFiles/testCrab.hist.root";
   rootHistFnameD="rootFiles/testDiv.hist.root";
   rootHistFnameE="rootFiles/testCrabDiv.hist.root";
-  rootHistFnameF="testAll_new.hist.root";
+  rootHistFnameF="rootFiles/testAll_new.hist.root";
+  rootHistFnameWrk=path;
   
   fa=new TFile(rootHistFnameA);
   assert(fa->IsOpen());
@@ -49,6 +52,9 @@ int plotBeamShape()
   ff=new TFile(rootHistFnameF);
   assert(ff->IsOpen());
 
+  wrk=new TFile(rootHistFnameWrk);
+  assert(wrk->IsOpen());
+
   //outFileName = outputPostscriptFile;
 
   //c=new TCanvas("c1","Canvas",800,600);
@@ -57,6 +63,214 @@ int plotBeamShape()
   //printf("To view individual page, type eachPage(#,0), where #=1-5\n");
 
   return 0;
+}
+
+
+void plotSingleConfigBeamMom()
+{
+  c[0]=new TCanvas("c0","CM Energy and Beam Momentum Diff",800,600);
+  c[1]=new TCanvas("c1","Hadron Beam Energy Deviations",800,600);
+  c[2]=new TCanvas("c2","Lepton Beam Energy Deviations",800,600);
+
+  c[0]->Clear();
+  c[0]->Divide(2,2);
+
+  c[1]->Clear();
+  c[1]->Divide(2,2);
+
+  c[2]->Clear();
+  c[2]->Divide(2,2);
+
+  TH1D *hA=(TH1D *)wrk->Get("eCM");
+  TH1D *hB=(TH1D *)wrk->Get("pZ1");
+  TH1D *hC=(TH1D *)wrk->Get("pZ2");
+
+  TH2D *hD=(TH2D *)wrk->Get("pXY1");
+  TH2D *hE=(TH2D *)wrk->Get("pXZProd1");
+  TH2D *hF=(TH2D *)wrk->Get("pYZProd1");
+
+  TH2D *hG=(TH2D *)wrk->Get("pXY2");
+  TH2D *hH=(TH2D *)wrk->Get("pXZProd2");
+  TH2D *hI=(TH2D *)wrk->Get("pYZProd2");
+
+  c[0]->cd(1);
+  hA->Rebin(5);
+  hA->Draw("HIST");
+  c[0]->cd(2);
+  hB->Draw("HIST");
+  hB->SetXTitle("Hadron Pz [GeV]");
+  c[0]->cd(3);
+  hC->Draw("HIST");
+  hC->SetXTitle("Lepton Pz [GeV]");
+
+  c[1]->cd(1);
+  hD->Draw("COLZ");
+  hD->GetXaxis()->SetRangeUser(6,8);
+  hD->GetYaxis()->SetRangeUser(-1,1);
+  hD->SetTitle("Hadron Beam Py vs Px;Px [GeV];Py [GeV]");
+  gPad->SetLogz();
+  c[1]->cd(2);
+  hE->Draw("COLZ");
+  hE->GetXaxis()->SetRangeUser(-300,300);
+  hE->GetYaxis()->SetRangeUser(6,8);
+  hE->SetTitle("Hadron Beam Px vs Z Vertex;Z-Vert [mm];Px [GeV]");
+  gPad->SetLogz();
+  c[1]->cd(3);
+  hF->Draw("COLZ");
+  hF->GetXaxis()->SetRangeUser(-300,300);
+  hF->GetYaxis()->SetRangeUser(-1,1);
+  hF->SetTitle("Hadron Beam Py vs Z Vertex;Z-Vert [mm];Py [GeV]");
+  gPad->SetLogz();
+
+  c[2]->cd(1);
+  hG->Draw("COLZ");
+  hG->GetXaxis()->SetRangeUser(-0.1,0.1);
+  hG->GetYaxis()->SetRangeUser(-0.1,0.1);
+  hG->SetTitle("Lepton Beam Py vs Px;Px [GeV];Py [GeV]");
+  gPad->SetLogz();
+  c[2]->cd(2);
+  hH->Draw("COLZ");
+  hH->GetXaxis()->SetRangeUser(-300,300);
+  hH->GetYaxis()->SetRangeUser(-0.1,0.1);
+  hH->SetTitle("Lepton Beam Px vs Z Vertex;Z-Vert [mm];Px [GeV]");
+  gPad->SetLogz();
+  c[2]->cd(3);
+  hI->Draw("COLZ");
+  hI->GetXaxis()->SetRangeUser(-300,300);
+  hI->GetYaxis()->SetRangeUser(-0.1,0.1);
+  hI->SetTitle("Lepton Beam Py vs Z Vertex;Z-Vert [mm];Py [GeV]");
+  gPad->SetLogz();
+}
+
+
+void plotSingleConfigVertex()
+{
+  c[0]=new TCanvas("c0","Vertex Distributions",800,600);
+  c[1]=new TCanvas("c1","Vertex Correlations",800,600);
+  c[2]=new TCanvas("c2","Beam Sizes and X-TZ Correlations",800,600);
+  c[3]=new TCanvas("c3","Beam Angles",800,600);
+
+  c[0]->Clear();
+  c[0]->Divide(2,2);
+
+  c[1]->Clear();
+  c[1]->Divide(2,2);
+
+  c[2]->Clear();
+  c[2]->Divide(2,2);
+
+  c[3]->Clear();
+  c[3]->Divide(2,2);
+
+  TH1D *hA=(TH1D *)wrk->Get("vtxX");
+  TH1D *hB=(TH1D *)wrk->Get("vtxY");
+  TH1D *hC=(TH1D *)wrk->Get("vtxZ");
+  TH1D *hD=(TH1D *)wrk->Get("vtxT");
+
+  TH2D *hE=(TH2D *)wrk->Get("vtxYvsX");
+  TH2D *hF=(TH2D *)wrk->Get("vtxXvsZ");
+  TH2D *hG=(TH2D *)wrk->Get("vtxXvsT");
+  TH2D *hH=(TH2D *)wrk->Get("vtxTvsZ");
+
+  TH2D *hI=(TH2D *)wrk->Get("lepVsHadPartZ");
+  TH2D *hJ=(TH2D *)wrk->Get("vtxXvsTZDiff");
+  TH2D *hK=(TH2D *)wrk->Get("vtxXvsTZSum");
+
+  TH1D *hL=(TH1D *)wrk->Get("atan2PxPz1");
+  TH1D *hM=(TH1D *)wrk->Get("atan2PyPz1");
+  TH1D *hN=(TH1D *)wrk->Get("atan2PxPz2");
+  TH1D *hO=(TH1D *)wrk->Get("atan2PyPz2");
+
+  c[0]->cd(1);
+  hA->Draw("HIST");
+  hA->GetXaxis()->SetRangeUser(-1,1);
+  c[0]->cd(2);
+  hB->Draw("HIST");
+  hB->GetXaxis()->SetRangeUser(-0.1,0.1);
+  c[0]->cd(3);
+  hC->Draw("HIST");
+  hC->GetXaxis()->SetRangeUser(-300,300);
+  c[0]->cd(4);
+  hD->Draw("HIST");
+  hD->GetXaxis()->SetRangeUser(-300,300);
+
+  c[1]->cd(1);
+  hE->Draw("COLZ");
+  hE->GetXaxis()->SetRangeUser(-1,1);
+  hE->GetYaxis()->SetRangeUser(-0.1,0.1);
+  gPad->SetLogz();
+  c[1]->cd(2);
+  hF->Draw("COLZ");
+  hF->GetXaxis()->SetRangeUser(-300,300);
+  hF->GetYaxis()->SetRangeUser(-1,1);
+  gPad->SetLogz();
+  c[1]->cd(3);
+  hG->Draw("COLZ");
+  hG->GetXaxis()->SetRangeUser(-300,300);
+  hG->GetYaxis()->SetRangeUser(-1,1);
+  gPad->SetLogz();
+  c[1]->cd(4);
+  hH->Draw("COLZ");
+  hH->GetXaxis()->SetRangeUser(-300,300);
+  hH->GetYaxis()->SetRangeUser(-300,300);
+  gPad->SetLogz();
+
+  c[2]->cd(1);
+  hI->Draw("COLZ");
+  hI->SetTitle("Lepton Vs Hadron Bunch Z Length;Hadron Z [mm];Lepton Z [mm]");
+  gPad->SetLogz();
+  c[2]->cd(2);
+  hJ->Draw("COLZ");
+  hJ->GetYaxis()->SetRangeUser(-1,1);
+  gPad->SetLogz();
+  c[2]->cd(3);
+  hK->Draw("COLZ");
+  hK->GetXaxis()->SetRangeUser(-100,100);
+  hK->GetYaxis()->SetRangeUser(-1,1);
+  gPad->SetLogz();
+
+  c[3]->cd(1);
+  hL->Draw("HIST");
+  hL->SetTitle("Hadron Beam Angular Deviation: X;Rad");
+  c[3]->cd(2);
+  hM->Draw("HIST");
+  hM->SetTitle("Hadron Beam Angular Deviation: Y;Rad");
+  hM->GetXaxis()->SetRangeUser(-0.002,0.002);
+  c[3]->cd(3);
+  hN->Draw("HIST");
+  hN->SetTitle("Lepton Beam Angular Deviation: X;Rad");
+  hN->GetXaxis()->SetRangeUser(-0.002,0.002);
+  c[3]->cd(4);
+  hO->Draw("HIST");
+  hO->SetTitle("Lepton Beam Angular Deviation: Y;Rad");
+  hO->GetXaxis()->SetRangeUser(-0.002,0.002);
+}
+
+
+void plotSingleConfigKinematics()
+{
+  c[0]=new TCanvas("c0","Final State Particle Kinematics",800,600);
+
+  c[0]->Clear();
+  c[0]->Divide(2,2);
+
+  TH2D *hA=(TH2D *)wrk->Get("partPtVsEta");
+  TH2D *hB=(TH2D *)wrk->Get("partPhiVsEta");
+  TH2D *hC=(TH2D *)wrk->Get("partPhiVsEtaHi");
+
+  c[0]->cd(1);
+  hA->Draw("COLZ");
+  hA->GetYaxis()->SetRangeUser(0,20);
+  hA->SetXTitle("Eta"); hA->SetYTitle("p_{T}");
+  gPad->SetLogz();
+  c[0]->cd(2);
+  hB->Draw("COLZ");
+  hB->SetXTitle("Eta"); hB->SetYTitle("Phi");
+  gPad->SetLogz();
+  c[0]->cd(3);
+  hC->Draw("COLZ");
+  hC->SetXTitle("Eta"); hC->SetYTitle("Phi");
+  gPad->SetLogz();
 }
 
 
