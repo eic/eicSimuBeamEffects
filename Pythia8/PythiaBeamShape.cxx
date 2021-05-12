@@ -102,6 +102,15 @@ int main(int argc, char* argv[])
 
   TH2D *partStatusVsEtaHist = new TH2D("partStatusVsEta","Particle Status Code Vs Eta",400,-10.,10.,200,0.,200.);
 
+  TH2D *partPtVsEtaBRHist = new TH2D("partPtVsEtaBR","Final State Particle Pt Vs Eta: Beam Remnant",400,-10.,10.,500,0.,50.);
+  TH2D *partPhiVsEtaBRHist = new TH2D("partPhiVsEtaBR","Final State Particle Phi Vs Eta: Beam Remnant",400,-10.,10.,100,-1.0*TMath::Pi(),TMath::Pi());
+
+  TH2D *partPtVsEtaHadHist = new TH2D("partPtVsEtaHad","Final State Particle Pt Vs Eta: Hadronization",400,-10.,10.,500,0.,50.);
+  TH2D *partPhiVsEtaHadHist = new TH2D("partPhiVsEtaHad","Final State Particle Phi Vs Eta: Hadronization",400,-10.,10.,100,-1.0*TMath::Pi(),TMath::Pi());
+
+  TH2D *partPtVsEtaDecayHist = new TH2D("partPtVsEtaDecay","Final State Particle Pt Vs Eta: Decay",400,-10.,10.,500,0.,50.);
+  TH2D *partPhiVsEtaDecayHist = new TH2D("partPhiVsEtaDecay","Final State Particle Phi Vs Eta: Decay",400,-10.,10.,100,-1.0*TMath::Pi(),TMath::Pi());
+
   // Hi Pt
   TH1D *partPtHiHist = new TH1D("partPtHi","Final State Particle Pt (Pt > 1 GeV)",500,0.,50.);
   TH1D *partEtaHiHist = new TH1D("partEtaHi","Final State Particle Eta (Pt > 1 GeV)",400,-10.,10.);
@@ -299,7 +308,7 @@ TH2D *jetPtVsPtNoCutHist = new TH2D("jetPtVsPtNoCut","Jet Pt Vs Parton Pt",500,0
 
 	  //cout << i << " " << p8.event[i].id() << " " << partPt << " " << partEta << " " << partPhi << endl;
 
-	  if(partFin && partEta>-10.0 && partEta<10.0 && y<0.95 && y>0.01 && i > 7)
+	  if(partFin && partEta>-10.0 && partEta<10.0 && i > 7)
 	    {
 	      partPtHist->Fill(partPt);
 	      partPhiHist->Fill(partPhi);
@@ -309,6 +318,22 @@ TH2D *jetPtVsPtNoCutHist = new TH2D("jetPtVsPtNoCut","Jet Pt Vs Parton Pt",500,0
 	      partPhiVsEtaHist->Fill(partEta,partPhi);
 
 	      partStatusVsEtaHist->Fill(partEta,p8.event[i].status());
+
+	      if(p8.event[i].status() == 63)
+		{
+		  partPtVsEtaBRHist->Fill(partEta,partPt);
+		  partPhiVsEtaBRHist->Fill(partEta,partPhi);
+		}
+	      if(p8.event[i].status() == 83 || p8.event[i].status() == 84)
+		{
+		  partPtVsEtaHadHist->Fill(partEta,partPt);
+		  partPhiVsEtaHadHist->Fill(partEta,partPhi);
+		}
+	      if(p8.event[i].status() == 91)
+		{
+		  partPtVsEtaDecayHist->Fill(partEta,partPt);
+		  partPhiVsEtaDecayHist->Fill(partEta,partPhi);
+		}
 
 	      if(partPt > 1.0)
 		{
@@ -334,7 +359,7 @@ TH2D *jetPtVsPtNoCutHist = new TH2D("jetPtVsPtNoCut","Jet Pt Vs Parton Pt",500,0
       //cout << endl;
 
 
-      if(y < 0.95 && y > 0.01 && jetP > 0.0)
+      if(jetP > 0.0)
 	{
 	  pJetEtaVsP->Fill(jetP,jetEta);
 
