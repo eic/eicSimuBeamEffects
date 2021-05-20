@@ -31,26 +31,30 @@ int main(int argc, char* argv[])
 {
   //const char* steerFile = 
   
-  if(argc != 8)
+  if(argc != 9)
     {
       cerr << "Wrong number of arguments" << endl;
-      cerr << "program.exe steer configuration hadronE leptonE xangle out.hist.root out.hepmc" << endl;
+      cerr << "program.exe steer configuration Allow Crab hadronE leptonE xangle out.hist.root out.hepmc" << endl;
       exit(EXIT_FAILURE);
     }
 
-  const int config = atoi(argv[2]);
-  const double hadE = atof(argv[3]);
-  const double lepE = atof(argv[4]);
-  const double xing = atof(argv[5]);
-  const char* rootOut = argv[6];
-  const char* hepmcOut = argv[7];
+  const int config     = atoi(argv[2]);
+  const int crab       = atoi(argv[3]);
+  const double hadE    = atof(argv[4]);
+  const double lepE    = atof(argv[5]);
+  const double xing    = atof(argv[6]);
+  const char* rootOut  = argv[7];
+  const char* hepmcOut = argv[8];
 
   cout << "Steering File = " << argv[1] << endl;
+  if(config == 0) cout << "Checking of Steering File Settings Suspended - Components Zeroed out to Turn off Specific effects" << endl;
   if(config == 1) cout << "Configuration = High Divergence" << endl;
   if(config == 2) cout << "Configuration = High Acceptance" << endl; 
+  if(crab == 0) cout << "Disabling Momentum Kick from Crab Crossing" << endl;
+  else cout << "Including Momentum Kick from Crab Crossing" << endl;
   cout << "Hadron Energy = " << hadE << endl;
   cout << "Lepton Energy = " << lepE << endl;
-  cout << "Beam Crossing Angle (miliradians) = " << xing << endl;
+  cout << "Beam Crossing Angle (Radians) = " << xing << endl;
   cout << "Root Output = " << rootOut << endl;
   cout << "HepMC Output = " << hepmcOut << endl;
 
@@ -186,7 +190,7 @@ TH2D *jetPtVsPtNoCutHist = new TH2D("jetPtVsPtNoCut","Jet Pt Vs Parton Pt",500,0
   Pythia8::Event &event = p8.event;
 
   // A class to generate beam parameters according to own parametrization.
-  BeamShapePtr myBeamShape = make_shared<eicBeamShape>(config,hadE,lepE,xing);
+  BeamShapePtr myBeamShape = make_shared<eicBeamShape>(config,crab,hadE,lepE,xing);
 
   // Hand pointer to Pythia.
   // If you comment this out you get internal Gaussian-style implementation.
@@ -308,7 +312,7 @@ TH2D *jetPtVsPtNoCutHist = new TH2D("jetPtVsPtNoCut","Jet Pt Vs Parton Pt",500,0
 
 	  //cout << i << " " << p8.event[i].id() << " " << partPt << " " << partEta << " " << partPhi << endl;
 
-	  if(partFin && partEta>-10.0 && partEta<10.0 && i > 7)
+	  if(partFin) //partEta>-10.0 && partEta<10.0
 	    {
 	      partPtHist->Fill(partPt);
 	      partPhiHist->Fill(partPhi);

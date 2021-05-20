@@ -8,9 +8,10 @@
 
 using namespace Pythia8;
 
-eicBeamShape::eicBeamShape(int config, double ion, double lepton, double xAngle) 
+eicBeamShape::eicBeamShape(int config, int crab, double ion, double lepton, double xAngle) 
   {
     mDivAcc = config;
+    mAllowCrabKick = crab;
     mIonBeamEnergy = ion;
     mLeptonBeamEnergy = lepton;
     mXAngle = xAngle;
@@ -245,7 +246,7 @@ void eicBeamShape::pick() {
       if(mIonBeamEnergy == 275.0) betaCrabHad = 1300000.0;
       if(mIonBeamEnergy == 100.0) betaCrabHad = 500000.0;
       if(mIonBeamEnergy == 41.0)  betaCrabHad = 200000.0;
-      if(mDivAcc == 1) // High Divergence Config - CDR Table 3.3
+      if(mDivAcc == 1 || mDivAcc == 0) // High Divergence Config - CDR Table 3.3; 0 corresponds to zeroing out components to turn off effects via steering file
 	{
 	  if(mIonBeamEnergy == 275.0) betaStarHad = 800.0;
 	  if(mIonBeamEnergy == 100.0 && mLeptonBeamEnergy == 10.0) betaStarHad = 630.0; // For root[s] = 63.2
@@ -266,7 +267,7 @@ void eicBeamShape::pick() {
       if(mLeptonBeamEnergy == 18.0) betaCrabLep = 150000.0;
       if(mLeptonBeamEnergy == 10.0) betaCrabLep = 150000.0;
       if(mLeptonBeamEnergy == 5.0)  betaCrabLep = 150000.0;
-      if(mDivAcc == 1) // High Divergence Config - CDR Table 3.3
+      if(mDivAcc == 1 || mDivAcc == 0) // High Divergence Config - CDR Table 3.3
 	{
 	  if(mLeptonBeamEnergy == 18.0) betaStarLep = 590.0;
 	  if(mLeptonBeamEnergy == 10.0 && mIonBeamEnergy == 275.0) betaStarLep = 450.0; // For root[s] = 104.9
@@ -305,10 +306,13 @@ void eicBeamShape::pick() {
       RotY(mXAngle/2.0,crabKickHad,0.,0.,&tmpVertPxA,&tmpVertPyA,&tmpVertPzA);
       RotY(mXAngle/2.0,crabKickLep,0.,0.,&tmpVertPxB,&tmpVertPyB,&tmpVertPzB);
 
-      deltaPxA += tmpVertPxA;
-      deltaPzA += tmpVertPzA;
-      deltaPxB += tmpVertPxB;
-      deltaPzB += tmpVertPzB;
+      if(mAllowCrabKick)
+	{
+	  deltaPxA += tmpVertPxA;
+	  deltaPzA += tmpVertPzA;
+	  deltaPxB += tmpVertPxB;
+	  deltaPzB += tmpVertPzB;
+	}
     }
 
 

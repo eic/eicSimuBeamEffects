@@ -26,19 +26,20 @@ using namespace Pythia8;
 
 int main(int argc, char* argv[])
 {
-  if(argc != 8)
+  if(argc != 9)
     {
       cerr << "Wrong number of arguments" << endl;
-      cerr << "program.exe steer configuration hadronE leptonE xangle out.hist.root out.hepmc" << endl;
+      cerr << "program.exe steer configuration Allow Crab hadronE leptonE xangle out.hist.root out.hepmc" << endl;
       exit(EXIT_FAILURE);
     }
 
   const int config = atoi(argv[2]);
-  const double hadE = atof(argv[3]);
-  const double lepE = atof(argv[4]);
-  const double xing = atof(argv[5]);
-  const char* rootOut = argv[6];
-  const char* hepmcOut = argv[7];
+  const int crab = atoi(argv[3]);
+  const double hadE = atof(argv[4]);
+  const double lepE = atof(argv[5]);
+  const double xing = atof(argv[6]);
+  const char* rootOut = argv[7];
+  const char* hepmcOut = argv[8];
 
   cout << "Steering File = " << argv[1] << endl;
   if(config == 1) cout << "Configuration = High Divergence" << endl;
@@ -71,7 +72,7 @@ int main(int argc, char* argv[])
   Pythia8::Event &event = p8.event;
 
   // A class to generate beam parameters according to own parametrization.
-  BeamShapePtr myBeamShape = make_shared<eicBeamShape>(config,hadE,lepE,xing);
+  BeamShapePtr myBeamShape = make_shared<eicBeamShape>(config,crab,hadE,lepE,xing);
 
   // Hand pointer to Pythia.
   // If you comment this out you get internal Gaussian-style implementation.

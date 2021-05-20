@@ -14,7 +14,7 @@ class eicBeamShape : public BeamShape {
  public:
 
   // Constructor
-  eicBeamShape(int config, double ion, double lepton, double xAngle);
+  eicBeamShape(int config, int crab, double ion, double lepton, double xAngle);
 
   // Set Beam Properties to Pass to Pythia
   virtual void pick();
@@ -25,6 +25,7 @@ class eicBeamShape : public BeamShape {
  protected:
 
   int mDivAcc;
+  int mAllowCrabKick;
   double mIonBeamEnergy;
   double mLeptonBeamEnergy;
   double mXAngle;
