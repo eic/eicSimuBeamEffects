@@ -15,16 +15,16 @@ Beams:frameType = 2
 Beams:idA = 2212
 Beams:idB = 11
 
-Beams:eA = 40.9968
-Beams:eB = 4.9996
+Beams:eA = 41
+Beams:eB = 5
 
-Beams:allowMomentumSpread = off
-Beams:sigmapxA = 0.000220
-Beams:sigmapyA = 0.000380
+Beams:allowMomentumSpread = on
+Beams:sigmapxA = 0.00
+Beams:sigmapyA = 0.00
 Beams:sigmapzA = 0.00103
 
-Beams:sigmapxB = 0.000101
-Beams:sigmapyB = 0.000129
+Beams:sigmapxB = 0.00
+Beams:sigmapyB = 0.00
 Beams:sigmapzB = 0.00068
 
 Beams:allowVertexSpread = on

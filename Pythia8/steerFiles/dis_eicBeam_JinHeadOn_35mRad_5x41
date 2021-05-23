@@ -15,8 +15,8 @@ Beams:frameType = 2
 Beams:idA = 2212
 Beams:idB = 11
 
-Beams:eA = 40.9968
-Beams:eB = 4.9996
+Beams:eA = 40.9937
+Beams:eB = 4.9992
 
 Beams:allowMomentumSpread = off
 Beams:sigmapxA = 0.000220

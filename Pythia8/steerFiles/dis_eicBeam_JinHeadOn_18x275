@@ -27,7 +27,7 @@ Beams:sigmapxB = 0.000202
 Beams:sigmapyB = 0.000187
 Beams:sigmapzB = 0.00109
 
-Beams:allowVertexSpread = off
+Beams:allowVertexSpread = on
 Beams:sigmaVertexX = 0.084
 Beams:sigmaVertexY = 0.008
 Beams:sigmaVertexZ = 0.0

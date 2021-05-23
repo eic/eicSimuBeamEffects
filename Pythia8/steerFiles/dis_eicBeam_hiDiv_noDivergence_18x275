@@ -1,6 +1,6 @@
 /*
 Steering file for LO DIS with realistic EIC beam parameters
-5x41 in High Divergence Mode
+18x275 in High Divergence Mode
 See CDR Table 3.3
 */
 
@@ -15,21 +15,21 @@ Beams:frameType = 2
 Beams:idA = 2212
 Beams:idB = 11
 
-Beams:eA = 40.9968
-Beams:eB = 4.9996
+Beams:eA = 275
+Beams:eB = 18
 
-Beams:allowMomentumSpread = off
-Beams:sigmapxA = 0.000220
-Beams:sigmapyA = 0.000380
-Beams:sigmapzA = 0.00103
+Beams:allowMomentumSpread = on
+Beams:sigmapxA = 0.00
+Beams:sigmapyA = 0.00
+Beams:sigmapzA = 0.00068
 
-Beams:sigmapxB = 0.000101
-Beams:sigmapyB = 0.000129
-Beams:sigmapzB = 0.00068
+Beams:sigmapxB = 0.00
+Beams:sigmapyB = 0.00
+Beams:sigmapzB = 0.00109
 
 Beams:allowVertexSpread = on
-Beams:sigmaVertexX = 0.140
-Beams:sigmaVertexY = 0.019
+Beams:sigmaVertexX = 0.084
+Beams:sigmaVertexY = 0.008
 Beams:sigmaVertexZ = 0.0
 
 
