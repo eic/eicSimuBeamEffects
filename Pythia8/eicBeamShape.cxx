@@ -14,6 +14,7 @@ eicBeamShape::eicBeamShape(int config, double ion, double lepton, double xAngle)
     mIonBeamEnergy = ion;
     mLeptonBeamEnergy = lepton;
     mXAngle = xAngle;
+    mXAngleY = 0.0;
     mKill == 0;
 
     // Ensure Beam Energies Correspond to Those Presented in CDR
@@ -190,6 +191,8 @@ void eicBeamShape::pick() {
   if(allowMomentumSpread) // allowMomentumSpread
     {
       double gaussXA, gaussYA, gaussXB, gaussYB;
+      //double pxLocal = 0.;
+      //double pyLocal = 0.;
 
       if(sigmaPxA > 0.)
 	{
@@ -197,6 +200,7 @@ void eicBeamShape::pick() {
 	  gaussXA = rndmPtr->gauss();
 	  double div = sigmaPxA * gaussXA;
 	  double pxLocal = (mIonBeamEnergy + tmpPzA)*TMath::Sin(div); // Dispersion in Beam Frame
+	  //pxLocal = (mIonBeamEnergy + tmpPzA)*TMath::Sin(div); // Dispersion in Beam Frame
 
 	  // Rotate into Detector Frame
 	  double divPxA, divPyA, divPzA;
@@ -213,7 +217,19 @@ void eicBeamShape::pick() {
 	  gaussYA = rndmPtr->gauss();
 	  double div = sigmaPyA * gaussYA;
 	  deltaPyA += (mIonBeamEnergy + tmpPzA)*TMath::Sin(div); // No Crossing Angle in Y direction
+	  //pyLocal = (mIonBeamEnergy + tmpPzA)*TMath::Sin(div);
 	}
+
+      // Rotate into Detector Frame
+      //double divPxA, divPyA, divPzA;
+      //divPxA = divPyA = divPzA = 0.;
+
+      //RotXY(mXAngle,mXAngleY,pxLocal,pyLocal,0.,&divPxA,&divPyA,&divPzA);
+
+      //deltaPxA += divPxA;
+      //deltaPyA += divPyA;
+      //deltaPzA += divPzA;
+
       if(sigmaPxB > 0.)
 	{
 	  // Lepton Beam X Divergence
@@ -414,4 +430,12 @@ void eicBeamShape::RotY(double theta, double xin, double yin, double zin, double
   *xout = xin*TMath::Cos(theta) + zin*TMath::Sin(theta);
   *yout = yin;
   *zout = zin*TMath::Cos(theta) - xin*TMath::Sin(theta);
+}
+
+
+void eicBeamShape::RotXY(double theta, double phi, double xin, double yin, double zin, double *xout, double *yout, double *zout) {
+
+  *xout = xin*TMath::Cos(theta) + zin*TMath::Sin(theta);
+  *yout = xin*TMath::Sin(phi)*TMath::Sin(theta) + yin*TMath::Cos(phi) - zin*TMath::Sin(phi)*TMath::Cos(theta);
+  *zout = yin*TMath::Sin(phi) - xin*TMath::Cos(phi)*TMath::Sin(theta) + zin*TMath::Cos(phi)*TMath::Cos(theta);
 }
