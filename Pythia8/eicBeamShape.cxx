@@ -156,12 +156,12 @@ void eicBeamShape::pick() {
       if(sigmaPzA > 0.)
 	{
 	  gaussZA = rndmPtr->gauss();
-	  //tmpPzA = mIonBeamEnergy * (sigmaPzA * gaussZA);
+	  tmpPzA = mIonBeamEnergy * (sigmaPzA * gaussZA);
 	}
       if(sigmaPzB > 0.)
 	{
 	  gaussZB = rndmPtr->gauss();
-	  //tmpPzB = mLeptonBeamEnergy * (sigmaPzB * gaussZB);
+	  tmpPzB = mLeptonBeamEnergy * (sigmaPzB * gaussZB);
 	}
     }
 
