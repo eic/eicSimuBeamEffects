@@ -22,12 +22,15 @@ class eicBeamShape : public BeamShape {
   // Rotation Utility
   void RotY(double theta, double xin, double yin, double zin, double *xout, double *yout, double *zout);
 
+  void RotXY(double theta, double phi, double xin, double yin, double zin, double *xout, double *yout, double *zout);
+
  protected:
 
   int mDivAcc;
   double mIonBeamEnergy;
   double mLeptonBeamEnergy;
   double mXAngle;
+  double mXAngleY;
   int mKill;
 
 };
