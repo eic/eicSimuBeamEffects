@@ -47,7 +47,7 @@ int main(int argc, char* argv[])
   if(config == 2) cout << "Configuration = High Acceptance" << endl; 
   cout << "Hadron Energy = " << hadE << endl;
   cout << "Lepton Energy = " << lepE << endl;
-  cout << "Beam Crossing Angle (miliradians) = " << xing << endl;
+  cout << "Beam Crossing Angle (Radians) = " << xing << endl;
   cout << "Root Output = " << rootOut << endl;
 
   // Open Root File
