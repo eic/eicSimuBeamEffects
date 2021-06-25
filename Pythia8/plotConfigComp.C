@@ -30,10 +30,10 @@ int plotConfigComp()
   TString rootHistFnameY;
   TString rootHistFnameZ;
 
-  rootHistFnameA="rootFiles/headonTestJin/test_crossDivNrgCrab_25mRad_18x275_v1.hist.root";
-  rootHistFnameB="rootFiles/headonTestJin/test_crossDivNrgCrab_35mRad_18x275_v1.hist.root";
-  rootHistFnameC="rootFiles/headonTestJin/test_crossDivNrgCrab_25mRad_5x41_v1.hist.root";
-  rootHistFnameD="rootFiles/headonTestJin/test_crossDivNrgCrab_35mRad_5x41_v1.hist.root";
+  rootHistFnameA="rootFiles/headonTestJin/test_crossDivNrgCrab_25mRad_18x275_v2.hist.root";
+  rootHistFnameB="rootFiles/headonTestJin/test_crossDivNrgCrab_35mRad_18x275_v2.hist.root";
+  rootHistFnameC="rootFiles/headonTestJin/test_crossDivNrgCrab_25mRad_5x41_v2.hist.root";
+  rootHistFnameD="rootFiles/headonTestJin/test_crossDivNrgCrab_35mRad_5x41_v2.hist.root";
 
   rootHistFnameW="rootFiles/headonTestJin/test_headon_25mRad_18x275_v1.hist.root";
   rootHistFnameX="rootFiles/headonTestJin/test_headon_35mRad_18x275_v1.hist.root";
@@ -124,20 +124,22 @@ void plotBeamMom()
 
   c[0]->cd(1);
   hCM[0]->Draw("HIST");
+  hCM[0]->Rebin(4);
   hCM[0]->SetTitle("Modified-Nominal CM Energy: 18x275 25mRad;Energy Diff [GeV]");
-  hCM[0]->GetXaxis()->SetRangeUser(-0.025,0.);
+  hCM[0]->GetXaxis()->SetRangeUser(-0.5,0.5);
   c[0]->cd(2);
   hCM[1]->Draw("HIST");
+  hCM[1]->Rebin(4);
   hCM[1]->SetTitle("Modified-Nominal CM Energy: 18x275 35mRad;Energy Diff [GeV]");
-  hCM[1]->GetXaxis()->SetRangeUser(-0.025,0.);
+  hCM[1]->GetXaxis()->SetRangeUser(-0.5,0.5);
   c[0]->cd(3);
   hCM[2]->Draw("HIST");
   hCM[2]->SetTitle("Modified-Nominal CM Energy: 5x41 25mRad;Energy Diff [GeV]");
-  hCM[2]->GetXaxis()->SetRangeUser(-0.025,0.);
+  hCM[2]->GetXaxis()->SetRangeUser(-0.5,0.5);
   c[0]->cd(4);
   hCM[3]->Draw("HIST");
   hCM[3]->SetTitle("Modified-Nominal CM Energy: 5x41 35mRad;Energy Diff [GeV]");
-  hCM[3]->GetXaxis()->SetRangeUser(-0.025,0.);
+  hCM[3]->GetXaxis()->SetRangeUser(-0.5,0.5);
 
   c[1]->cd(1);
   hXY1[0]->Draw("COLZ");
@@ -619,10 +621,12 @@ void plotFinalState()
   c[3]->cd(3);
   hPtE[2]->Draw("COLZ");
   hPtE[2]->SetTitle("Final State Particle Pt Vs Eta: 5x41 25mRad;Eta;Pt");
+  hPtE[2]->GetYaxis()->SetRangeUser(0,20);
   gPad->SetLogz();
   c[3]->cd(4);
   hPtE[3]->Draw("COLZ");
   hPtE[3]->SetTitle("Final State Particle Pt Vs Eta: 5x41 35mRad;Eta;Pt");
+  hPtE[3]->GetYaxis()->SetRangeUser(0,20);
   gPad->SetLogz();
 
   c[4]->cd(1);
@@ -641,6 +645,7 @@ void plotFinalState()
   c[5]->cd(3);
   hPtE[5]->Draw("COLZ");
   hPtE[5]->SetTitle("Final State Particle Pt Vs Eta: 18x275 Nominal;Eta;Pt");
+  hPtE[5]->GetYaxis()->SetRangeUser(0,20);
   gPad->SetLogz();
 
 }

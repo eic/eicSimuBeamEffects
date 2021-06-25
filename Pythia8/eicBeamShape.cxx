@@ -15,6 +15,7 @@ eicBeamShape::eicBeamShape(int config, int crab, double ion, double lepton, doub
     mIonBeamEnergy = ion;
     mLeptonBeamEnergy = lepton;
     mXAngle = xAngle;
+    mXAngleY = 0.000100; // Fixed for IP6
     mKill == 0;
 
     // Ensure Beam Energies Correspond to Those Presented in CDR
@@ -163,6 +164,9 @@ void eicBeamShape::pick() {
 	  gaussZB = rndmPtr->gauss();
 	  tmpPzB = mLeptonBeamEnergy * (sigmaPzB * gaussZB);
 	}
+
+      deltaPzA += tmpPzA;
+      deltaPzB += tmpPzB;
     }
 
 
@@ -175,12 +179,16 @@ void eicBeamShape::pick() {
       // Modify Px Due to Crossing Angle
       deltaPxA += (mIonBeamEnergy + tmpPzA)*TMath::Sin(mXAngle);
 
+      // Modify Py Due to Crossing Angle
+      deltaPyA += (mIonBeamEnergy + tmpPzA)*TMath::Sin(mXAngleY);
+
       // Modify Pz Due to Crossing Angle
-      deltaPzA += (mIonBeamEnergy + tmpPzA)*TMath::Cos(mXAngle) - mIonBeamEnergy;
+      //deltaPzA += (mIonBeamEnergy + tmpPzA)*TMath::Cos(mXAngle) - mIonBeamEnergy; // Ignore Pz modification due to crossing angle in Y
+      deltaPzA += (mIonBeamEnergy + tmpPzA)*(TMath::Cos(mXAngle) - 1.0);
       //deltaPzA += tmpPzA;
 
       // Electron Beam Has 0 Crossing Angle
-      deltaPzB += tmpPzB;
+      //deltaPzB += tmpPzB;
     }
 
 
@@ -191,30 +199,34 @@ void eicBeamShape::pick() {
   if(allowMomentumSpread) // allowMomentumSpread
     {
       double gaussXA, gaussYA, gaussXB, gaussYB;
+      double pxLocal = 0.;
+      double pyLocal = 0.;
 
       if(sigmaPxA > 0.)
 	{
 	  // Ion Beam X Divergence
 	  gaussXA = rndmPtr->gauss();
 	  double div = sigmaPxA * gaussXA;
-	  double pxLocal = (mIonBeamEnergy + tmpPzA)*TMath::Sin(div); // Dispersion in Beam Frame
-
-	  // Rotate into Detector Frame
-	  double divPxA, divPyA, divPzA;
-	  divPxA = divPyA = divPzA = 0.;
-
-	  RotY(mXAngle,pxLocal,0.,0.,&divPxA,&divPyA,&divPzA);
-
-	  deltaPxA += divPxA;
-	  deltaPzA += divPzA;
+	  pxLocal = (mIonBeamEnergy + tmpPzA)*TMath::Sin(div); // Dispersion in Beam Frame
 	}
       if(sigmaPyA > 0.)
 	{
 	  // Ion Beam Y Divergence
 	  gaussYA = rndmPtr->gauss();
 	  double div = sigmaPyA * gaussYA;
-	  deltaPyA += (mIonBeamEnergy + tmpPzA)*TMath::Sin(div); // No Crossing Angle in Y direction
+	  pyLocal = (mIonBeamEnergy + tmpPzA)*TMath::Sin(div);
 	}
+
+      // Rotate into Detector Frame
+      double divPxA, divPyA, divPzA;
+      divPxA = divPyA = divPzA = 0.;
+      
+      RotXY(mXAngle,-1.0*mXAngleY,pxLocal,pyLocal,0.,&divPxA,&divPyA,&divPzA);
+      
+      deltaPxA += divPxA;
+      deltaPyA += divPyA;
+      deltaPzA += divPzA;
+
       if(sigmaPxB > 0.)
 	{
 	  // Lepton Beam X Divergence
@@ -418,4 +430,12 @@ void eicBeamShape::RotY(double theta, double xin, double yin, double zin, double
   *xout = xin*TMath::Cos(theta) + zin*TMath::Sin(theta);
   *yout = yin;
   *zout = zin*TMath::Cos(theta) - xin*TMath::Sin(theta);
+}
+
+
+void eicBeamShape::RotXY(double theta, double phi, double xin, double yin, double zin, double *xout, double *yout, double *zout) {
+
+  *xout = xin*TMath::Cos(theta) + zin*TMath::Sin(theta);
+  *yout = xin*TMath::Sin(phi)*TMath::Sin(theta) + yin*TMath::Cos(phi) - zin*TMath::Sin(phi)*TMath::Cos(theta);
+  *zout = yin*TMath::Sin(phi) - xin*TMath::Cos(phi)*TMath::Sin(theta) + zin*TMath::Cos(phi)*TMath::Cos(theta);
 }
