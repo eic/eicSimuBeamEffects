@@ -43,6 +43,7 @@ int main(int argc, char* argv[])
   cout << "Steering File = " << argv[1] << endl;
   if(config == 1) cout << "Configuration = High Divergence" << endl;
   if(config == 2) cout << "Configuration = High Acceptance" << endl; 
+  if(config == 3) cout << "Ion Running" << endl;
   cout << "Hadron Energy = " << hadE << endl;
   cout << "Lepton Energy = " << lepE << endl;
   cout << "Beam Crossing Angle (Radians) = " << xing << endl;
