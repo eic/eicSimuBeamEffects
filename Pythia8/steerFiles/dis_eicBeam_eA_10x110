@@ -1,7 +1,8 @@
 /*
 Steering file for LO DIS with realistic EIC beam parameters
-10x275 in High Acceptance Mode
-See CDR Table 3.4
+10x110 in eAu Mode
+See CDR Table 3.5
+!!! NOTE: Beam Species is proton - User should change to appropriate ion !!!
 */
 
 Main:numberOfEvents = 1000000
@@ -15,21 +16,21 @@ Beams:frameType = 2
 Beams:idA = 2212
 Beams:idB = 11
 
-Beams:eA = 275
+Beams:eA = 110
 Beams:eB = 10
 
 Beams:allowMomentumSpread = on
-Beams:sigmapxA = 0.000065
-Beams:sigmapyA = 0.000065
-Beams:sigmapzA = 0.00068
+Beams:sigmapxA = 0.000216
+Beams:sigmapyA = 0.000274
+Beams:sigmapzA = 0.00062
 
-Beams:sigmapxB = 0.000116
-Beams:sigmapyB = 0.000084
+Beams:sigmapxB = 0.000102
+Beams:sigmapyB = 0.000092
 Beams:sigmapzB = 0.00058
 
 Beams:allowVertexSpread = on
-Beams:sigmaVertexX = 0.122
-Beams:sigmaVertexY = 0.011
+Beams:sigmaVertexX = 0.139
+Beams:sigmaVertexY = 0.008
 Beams:sigmaVertexZ = 0.0
 
 

@@ -18,10 +18,10 @@ eicBeamShape::eicBeamShape(int config, double ion, double lepton, double xAngle)
     mKill == 0;
 
     // Ensure Beam Energies Correspond to Those Presented in CDR
-    if(ion != 275.0 && ion != 100.0 && ion != 41.0) 
+    if(ion != 275.0 && ion != 110.0 && ion != 100.0 && ion != 41.0) 
       {
 	cout << ion << " is not a valid Hadron Beam Energy!!" << endl;
-	cout << "Valid Energies are 275.0, 100.0, and 41.0" << endl;
+	cout << "Valid Energies are 275.0, 110.0, 100.0, and 41.0" << endl;
 	cout << "Turning off all beam effects" << endl;
 	mKill = 1;
       }
@@ -37,21 +37,32 @@ eicBeamShape::eicBeamShape(int config, double ion, double lepton, double xAngle)
     if(ion == 275.0 && (lepton != 18.0 && lepton != 10.0))
       {
 	cout << lepton << "x" << ion << " is not a valid energy combination!!" << endl;
-	cout << "Valid Combinations are 18x275, 10x275, 10x100, 5x100, and 5x41" << endl;
+	cout << "Valid (ep) Combinations are 18x275, 10x275, 10x100, 5x100, and 5x41" << endl;
+	cout << "Valid (eA) Combinations are 18x110, 10x110, 5x110, and 5x41" << endl;
 	cout << "Turning off all beam effects" << endl;
 	mKill = 1;
       }
-    if(ion == 100.0 &&(lepton != 10.0 && lepton != 5.0))
+    if(ion == 110.0 && (lepton != 18.0 && lepton != 10.0 && lepton != 5.0))
       {
 	cout << lepton << "x" << ion << " is not a valid energy combination!!" << endl;
-	cout << "Valid Combinations are 18x275, 10x275, 10x100, 5x100, and 5x41" << endl;
+	cout << "Valid (ep) Combinations are 18x275, 10x275, 10x100, 5x100, and 5x41" << endl;
+	cout << "Valid (eA) Combinations are 18x110, 10x110, 5x110, and 5x41" << endl;
+	cout << "Turning off all beam effects" << endl;
+	mKill = 1;
+      }
+    if(ion == 100.0 && (lepton != 10.0 && lepton != 5.0))
+      {
+	cout << lepton << "x" << ion << " is not a valid energy combination!!" << endl;
+	cout << "Valid (ep) Combinations are 18x275, 10x275, 10x100, 5x100, and 5x41" << endl;
+	cout << "Valid (eA) Combinations are 18x110, 10x110, 5x110, and 5x41" << endl;
 	cout << "Turning off all beam effects" << endl;
 	mKill = 1;
       }
     if(ion == 41.0 && lepton != 5.0)
       {
 	cout << lepton << "x" << ion << " is not a valid energy combination!!" << endl;
-	cout << "Valid Combinations are 18x275, 10x275, 10x100, 5x100, and 5x41" << endl;
+	cout << "Valid (ep) Combinations are 18x275, 10x275, 10x100, 5x100, and 5x41" << endl;
+	cout << "Valid (eA) Combinations are 18x110, 10x110, 5x110, and 5x41" << endl;
 	cout << "Turning off all beam effects" << endl;
 	mKill = 1;
       }
@@ -85,8 +96,10 @@ void eicBeamShape::pick() {
       
       // Set different values depending on energy
       if(mIonBeamEnergy == 275.0) hadronBL = 60.0;
+      if(mIonBeamEnergy == 110.0) hadronBL = 70.0;
       if(mIonBeamEnergy == 100.0) hadronBL = 70.0;
-      if(mIonBeamEnergy == 41.0)  hadronBL = 75.0;
+      if(mIonBeamEnergy == 41.0 && mDivAcc != 3) hadronBL = 75.0;
+      if(mIonBeamEnergy == 41.0 && mDivAcc == 3) hadronBL = 116.0; // for eA
       if(mLeptonBeamEnergy == 18.0) leptonBL = 9.0;
       if(mLeptonBeamEnergy == 10.0) leptonBL = 7.0;
       if(mLeptonBeamEnergy == 5.0)  leptonBL = 7.0;
@@ -251,6 +264,7 @@ void eicBeamShape::pick() {
       double betaStarHad = 0.; // In horizontal direction
 
       if(mIonBeamEnergy == 275.0) betaCrabHad = 1300000.0;
+      if(mIonBeamEnergy == 110.0) betaCrabHad = 500000.0; // Estimate
       if(mIonBeamEnergy == 100.0) betaCrabHad = 500000.0;
       if(mIonBeamEnergy == 41.0)  betaCrabHad = 200000.0;
       if(mDivAcc == 1) // High Divergence Config - CDR Table 3.3
@@ -267,6 +281,11 @@ void eicBeamShape::pick() {
 	  if(mIonBeamEnergy == 100.0 && mLeptonBeamEnergy == 10.0) betaStarHad = 940.0; // For root[s] = 63.2
 	  if(mIonBeamEnergy == 100.0 && mLeptonBeamEnergy == 5.0)  betaStarHad = 800.0; // For root[s] = 44.7
 	  if(mIonBeamEnergy == 41.0 && mLeptonBeamEnergy == 5.0)   betaStarHad = 900.0; // For root[s] = 28.6
+	}
+      if(mDivAcc == 3) // eA Config - CDR Table 3.5
+	{
+	  if(mIonBeamEnergy == 110.0) betaStarHad = 910.0; 
+	  if(mIonBeamEnergy == 41.0)  betaStarHad = 900.0;
 	}
 
       double betaCrabLep = 0.;
@@ -289,6 +308,13 @@ void eicBeamShape::pick() {
 	  if(mLeptonBeamEnergy == 10.0 && mIonBeamEnergy == 100.0) betaStarLep = 1430.0; // For root[s] = 63.2
 	  if(mLeptonBeamEnergy == 5.0 && mIonBeamEnergy == 100.0)  betaStarLep = 1030.0; // For root[s] = 44.7
 	  if(mLeptonBeamEnergy == 5.0 && mIonBeamEnergy == 41.0)   betaStarLep = 1960.0; // For root[s] = 28.6 
+	}
+      if(mDivAcc == 3)
+	{
+	  if(mLeptonBeamEnergy == 18.0) betaStarLep = 1960.0;
+	  if(mLeptonBeamEnergy == 10.0) betaStarLep = 1930.0;
+	  if(mLeptonBeamEnergy == 5.0 && mIonBeamEnergy == 110.0) betaStarLep = 1930.0;
+	  if(mLeptonBeamEnergy == 5.0 && mIonBeamEnergy == 41.0)  betaStarLep = 3070.0;
 	}
 
       //double betaCrabHad = 1300000.0; // Beta Crab in mm for 275 hadron beam
@@ -338,6 +364,7 @@ void eicBeamShape::pick() {
 	  if(sigmaPxB != 0.000089 || sigmaPyB != 0.000082 || sigmaPzB != 0.00109) localKill = 1;
 	  if(sigmaVertexX != 0.192 || sigmaVertexY != 0.017) localKill = 1;
 	}
+      if(mDivAcc == 3) localKill = 1;
     }
   if(mIonBeamEnergy == 275.0 && mLeptonBeamEnergy == 10.0)
     {
@@ -352,6 +379,51 @@ void eicBeamShape::pick() {
 	  if(sigmaPxA != 0.000065 || sigmaPyA != 0.000065 || sigmaPzA != 0.00068) localKill = 1;
 	  if(sigmaPxB != 0.000116 || sigmaPyB != 0.000084 || sigmaPzB != 0.00058) localKill = 1;
 	  if(sigmaVertexX != 0.122 || sigmaVertexY != 0.011) localKill = 1;
+	}
+      if(mDivAcc == 3) localKill = 1;
+    }
+  if(mIonBeamEnergy == 110.0 && mLeptonBeamEnergy == 18.0)
+    {
+      if(mDivAcc == 1) localKill = 1;
+      if(mDivAcc == 2) localKill = 1;
+      if(mDivAcc == 3) 
+	{
+	  if(sigmaPxA != 0.000218 || sigmaPyA != 0.000379 || sigmaPzA != 0.00062) localKill = 1;
+	  if(sigmaPxB != 0.000101 || sigmaPyB != 0.000037 || sigmaPzB != 0.00109) localKill = 1;
+	  if(sigmaVertexX != 0.140 || sigmaVertexY != 0.011) localKill = 1;
+	}
+    }
+  if(mIonBeamEnergy == 110.0 && mLeptonBeamEnergy == 10.0)
+    {
+      if(mDivAcc == 1) localKill = 1;
+      if(mDivAcc == 2) localKill = 1;
+      if(mDivAcc == 3) 
+	{
+	  if(sigmaPxA != 0.000216 || sigmaPyA != 0.000274 || sigmaPzA != 0.00062) localKill = 1;
+	  if(sigmaPxB != 0.000102 || sigmaPyB != 0.000092 || sigmaPzB != 0.00058) localKill = 1;
+	  if(sigmaVertexX != 0.139 || sigmaVertexY != 0.008) localKill = 1;
+	}
+    }
+  if(mIonBeamEnergy == 110.0 && mLeptonBeamEnergy == 5.0)
+    {
+      if(mDivAcc == 1) localKill = 1;
+      if(mDivAcc == 2) localKill = 1;
+      if(mDivAcc == 3) 
+	{
+	  if(sigmaPxA != 0.000215 || sigmaPyA != 0.000275 || sigmaPzA != 0.00062) localKill = 1;
+	  if(sigmaPxB != 0.000102 || sigmaPyB != 0.000185 || sigmaPzB != 0.00068) localKill = 1;
+	  if(sigmaVertexX != 0.139 || sigmaVertexY != 0.008) localKill = 1;
+	}
+    }
+  if(mIonBeamEnergy == 41.0 && mLeptonBeamEnergy == 5.0 && mDivAcc == 3)
+    {
+      if(mDivAcc == 1) localKill = 1;
+      if(mDivAcc == 2) localKill = 1;
+      if(mDivAcc == 3) 
+	{
+	  if(sigmaPxA != 0.000275 || sigmaPyA != 0.000377 || sigmaPzA != 0.00100) localKill = 1;
+	  if(sigmaPxB != 0.000081 || sigmaPyB != 0.000136 || sigmaPzB != 0.00068) localKill = 1;
+	  if(sigmaVertexX != 0.175 || sigmaVertexY != 0.011) localKill = 1;
 	}
     }
   if(mIonBeamEnergy == 100.0 && mLeptonBeamEnergy == 10.0)
@@ -368,6 +440,7 @@ void eicBeamShape::pick() {
 	  if(sigmaPxB != 0.000118 || sigmaPyB != 0.000086 || sigmaPzB != 0.00058) localKill = 1;
 	  if(sigmaVertexX != 0.120 || sigmaVertexY != 0.011) localKill = 1;
 	}
+      if(mDivAcc == 3) localKill = 1;
     }
   if(mIonBeamEnergy == 100.0 && mLeptonBeamEnergy == 5.0)
     {
@@ -383,8 +456,9 @@ void eicBeamShape::pick() {
 	  if(sigmaPxB != 0.000140 || sigmaPyB != 0.000140 || sigmaPzB != 0.00068) localKill = 1;
 	  if(sigmaVertexX != 0.101 || sigmaVertexY != 0.009) localKill = 1;
 	}
+      if(mDivAcc == 3) localKill = 1;
     }
-  if(mIonBeamEnergy == 41.0 && mLeptonBeamEnergy == 5.0)
+  if(mIonBeamEnergy == 41.0 && mLeptonBeamEnergy == 5.0 && mDivAcc != 3)
     {
       if(mDivAcc == 1)
 	{
@@ -398,6 +472,7 @@ void eicBeamShape::pick() {
 	  if(sigmaPxB != 0.000101 || sigmaPyB != 0.000129 || sigmaPzB != 0.00068) localKill = 1;
 	  if(sigmaVertexX != 0.140 || sigmaVertexY != 0.019) localKill = 1;
 	}
+      if(mDivAcc == 3) localKill = 1;
     }
 
   if(localKill == 1)
