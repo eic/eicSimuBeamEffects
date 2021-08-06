@@ -99,4 +99,4 @@ Next:numberShowEvent = 0
 Next:numberCount = 10000
 
 Random:setSeed = on
-Random:seed = 42
+Random:seed = 0
