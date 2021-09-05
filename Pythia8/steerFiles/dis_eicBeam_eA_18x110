@@ -79,7 +79,7 @@ Hadronization and Radiation Settings
 */
 HadronLevel:Decay = on
 HadronLevel:all = on
-PartonLevel:ISR = off
+PartonLevel:ISR = on
 PartonLevel:MPI = off
 PartonLevel:FSR = on
 PromptPhoton:all = off
