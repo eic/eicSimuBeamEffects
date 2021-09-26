@@ -71,6 +71,8 @@ PhaseSpace Settings
 PhaseSpace:pTHatMin = 1.0
 PhaseSpace:pTHatMinDiverge = 0.5
 */
+PhaseSpace:mHatMin = 1.0
+PhaseSpace:pTHatMinDiverge = force 0.45
 PhaseSpace:Q2Min = 10.0
 
 
