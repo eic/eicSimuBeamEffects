@@ -54,18 +54,23 @@ int main(int argc, char* argv[])
   TFile *ofile = TFile::Open(rootOut,"recreate");
 
   // Histos
-  TH1D *q2Hist = new TH1D("q2Hist","",100,0.,5.);
-  TH1D *xHist = new TH1D("xHist","",100,-4.,1.);
+  TH1D *q2Hist = new TH1D("q2Hist","",200,-5.,5.);
+  TH1D *xHist = new TH1D("xHist","",200,-9.,1.);
   TH1D *yHist = new TH1D("yHist","",1000,-5.,0.);
-  TH2D *phaseSpaceHist = new TH2D("phaseSpaceHist","",100,-4.,1.,100,0.,5.);
+  TH2D *phaseSpaceHist = new TH2D("phaseSpaceHist","",200,-9.,1.,200,-5.,5.);
+
+  TH1D *atan2PxPz1Hist = new TH1D("atan2PxPz1","",2500,-0.05,0.05);
+  TH1D *atan2PyPz1Hist = new TH1D("atan2PyPz1","",2500,-0.01,0.01);
+  TH1D *atan2PxPz2Hist = new TH1D("atan2PxPz2","",2500,-0.01,0.01);
+  TH1D *atan2PyPz2Hist = new TH1D("atan2PyPz2","",2500,-0.01,0.01);
 
 
   // Interface for conversion from Pythia8::Event to HepMC event.
   HepMC3::Pythia8ToHepMC3 topHepMC;
 
   // Specify file where HepMC events will be stored.
-  //HepMC3::WriterAscii ascii_io(hepmcOut); // Write in HepMC3 Format
-  HepMC3::WriterAsciiHepMC2 ascii_io(hepmcOut); // Write in HepMC2 Format for Delphes
+  HepMC3::WriterAscii ascii_io(hepmcOut); // Write in HepMC3 Format
+  //HepMC3::WriterAsciiHepMC2 ascii_io(hepmcOut); // Write in HepMC2 Format for Delphes
 
   // Set Up Pythia Event
   Pythia8::Pythia p8;
@@ -89,13 +94,18 @@ int main(int argc, char* argv[])
   int nevents = p8.mode("Main:numberOfEvents");
   if(nevents > 10000)
     {
-      cout << "Limit nEvents to < 10000 due to size of HepMC file" << endl;
-      exit(EXIT_FAILURE);
+      //cout << "Limit nEvents to < 10000 due to size of HepMC file" << endl;
+      //exit(EXIT_FAILURE);
     }
   for(int ev=0; ev<nevents; ev++)
     {
       if(!p8.next()) continue;
       // p8.event.list();
+
+      atan2PxPz1Hist->Fill(TMath::ATan2(p8.process[1].px(),p8.process[1].pz()));
+      atan2PyPz1Hist->Fill(TMath::ATan2(p8.process[1].py(),p8.process[1].pz()));
+      atan2PxPz2Hist->Fill(TMath::ATan2(p8.process[2].px(),(-1.0)*p8.process[2].pz()));
+      atan2PyPz2Hist->Fill(TMath::ATan2(p8.process[2].py(),(-1.0)*p8.process[2].pz()));
 
       // Four-momenta of proton, electron, virtual photon/Z^0/W^+-.
       Pythia8::Vec4 pProton = event[1].p();

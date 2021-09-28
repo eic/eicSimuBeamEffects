@@ -70,6 +70,8 @@ PhaseSpace Settings
 PhaseSpace:pTHatMin = 1.0
 PhaseSpace:pTHatMinDiverge = 0.5
 */
+PhaseSpace:mHatMin = 1.0
+PhaseSpace:pTHatMinDiverge = force 0.45
 PhaseSpace:Q2Min = 10.0
 
 
@@ -78,7 +80,7 @@ Hadronization and Radiation Settings
 */
 HadronLevel:Decay = on
 HadronLevel:all = on
-PartonLevel:ISR = off
+PartonLevel:ISR = on
 PartonLevel:MPI = off
 PartonLevel:FSR = on
 PromptPhoton:all = off

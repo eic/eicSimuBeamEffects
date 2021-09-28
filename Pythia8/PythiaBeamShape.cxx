@@ -55,9 +55,9 @@ int main(int argc, char* argv[])
   TFile *ofile = TFile::Open(rootOut,"recreate");
 
   // Histos
-  TH1D *q2Hist = new TH1D("q2Hist","Log Q2",100,-10.,0.);
+  TH1D *q2Hist = new TH1D("q2Hist","Log Q2",200,-10.,10.);
   TH1D *yHist = new TH1D("yHist","Inelasticity",1000,-5.,0.);
-  TH2D *phaseSpaceHist = new TH2D("phaseSpaceHist","Log Q2 Vs Log x",100,-4.,1.,100,0.,5.);
+  TH2D *phaseSpaceHist = new TH2D("phaseSpaceHist","Log Q2 Vs Log x",200,-9.,1.,200,-5.,5.);
 
   // Beam Shape
   TH1D *eCM = new TH1D("eCM","Modified - Nominal CM Energy",10000,-1.0,1.0);
