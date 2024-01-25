@@ -8,12 +8,12 @@ endif
 CXXFLAGS     = -std=c++11
 CXXFLAGS     += `root-config --cflags`
 CXXFLAGS     += `fastjet-config --cxxflags`
-CXXFLAGS     += -I$(PYTHIA8)/include
+CXXFLAGS     += `pythia8-config --cxxflags`
 
 LDFLAGS      = 
 LDFLAGS     += `root-config --libs`
 LDFLAGS     += `fastjet-config --libs --plugins`
-LDFLAGS     += -L$(PYTHIA8)/lib -lpythia8
+LDFLAGS     += `pythia8-config --ldflags`
 
 #all : PythiaHepMC
 
