@@ -5,7 +5,7 @@ else
 CXX          = c++
 endif
 
-CXXFLAGS     = -std=c++11
+CXXFLAGS     =
 CXXFLAGS     += `root-config --cflags`
 CXXFLAGS     += `fastjet-config --cxxflags`
 CXXFLAGS     += `pythia8-config --cxxflags`
