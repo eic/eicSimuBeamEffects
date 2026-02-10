@@ -5,6 +5,8 @@
 #include "Pythia8/BeamShape.h"
 #include "Pythia8Plugins/HepMC3.h"
 #include "HepMC3/WriterAsciiHepMC2.h"
+#include "HepMC3/GenRunInfo.h"
+#include "HepMC3/Attribute.h"
 #include "eicBeamShape.h"
 
 
@@ -23,6 +25,14 @@ using std::string;
 
 using namespace Pythia8;
 
+void add_beam_config_to_run_info(const std::shared_ptr<HepMC3::GenRunInfo>& run_info,
+                                  const std::shared_ptr<eicBeamShape>& beam_shape) {
+  run_info->add_attribute("eic_div_acc", std::make_shared<HepMC3::IntAttribute>(beam_shape->getDivAcc()));
+  run_info->add_attribute("eic_ion_beam_energy", std::make_shared<HepMC3::DoubleAttribute>(beam_shape->getIonBeamEnergy()));
+  run_info->add_attribute("eic_lepton_beam_energy", std::make_shared<HepMC3::DoubleAttribute>(beam_shape->getLeptonBeamEnergy()));
+  run_info->add_attribute("eic_crossing_angle", std::make_shared<HepMC3::DoubleAttribute>(beam_shape->getXAngle()));
+  run_info->add_attribute("eic_crossing_angle_y", std::make_shared<HepMC3::DoubleAttribute>(beam_shape->getXAngleY()));
+}
 
 int main(int argc, char* argv[])
 {
@@ -68,16 +78,12 @@ int main(int argc, char* argv[])
   // Interface for conversion from Pythia8::Event to HepMC event.
   HepMC3::Pythia8ToHepMC3 topHepMC;
 
-  // Specify file where HepMC events will be stored.
-  HepMC3::WriterAscii ascii_io(hepmcOut); // Write in HepMC3 Format
-  //HepMC3::WriterAsciiHepMC2 ascii_io(hepmcOut); // Write in HepMC2 Format for Delphes
-
   // Set Up Pythia Event
   Pythia8::Pythia p8;
   Pythia8::Event &event = p8.event;
 
   // A class to generate beam parameters according to own parametrization.
-  BeamShapePtr myBeamShape = make_shared<eicBeamShape>(config,hadE,lepE,xing);
+  auto myBeamShape = make_shared<eicBeamShape>(config,hadE,lepE,xing);
 
   // Hand pointer to Pythia.
   // If you comment this out you get internal Gaussian-style implementation.
@@ -89,6 +95,14 @@ int main(int argc, char* argv[])
 
   // Initialize Pythia
   p8.init();
+
+  // Add beam configuration to HepMC run info
+  auto run_info = std::make_shared<HepMC3::GenRunInfo>();
+  add_beam_config_to_run_info(run_info, myBeamShape);
+
+  // Specify file where HepMC events will be stored.
+  HepMC3::WriterAscii ascii_io(hepmcOut, run_info); // Write in HepMC3 Format
+  //HepMC3::WriterAsciiHepMC2 ascii_io(hepmcOut, run_info); // Write in HepMC2 Format for Delphes
 
   // Run
   int nevents = p8.mode("Main:numberOfEvents");
