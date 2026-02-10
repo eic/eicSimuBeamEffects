@@ -24,6 +24,13 @@ class eicBeamShape : public BeamShape {
 
   void RotXY(double theta, double phi, double xin, double yin, double zin, double *xout, double *yout, double *zout);
 
+  // Getters for configuration parameters
+  int getDivAcc() const { return mDivAcc; }
+  double getIonBeamEnergy() const { return mIonBeamEnergy; }
+  double getLeptonBeamEnergy() const { return mLeptonBeamEnergy; }
+  double getXAngle() const { return mXAngle; }
+  double getXAngleY() const { return mXAngleY; }
+
  protected:
 
   int mDivAcc;
