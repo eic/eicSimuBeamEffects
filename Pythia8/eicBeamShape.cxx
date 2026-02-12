@@ -15,7 +15,7 @@ eicBeamShape::eicBeamShape(int config, double ion, double lepton, double xAngle)
     mLeptonBeamEnergy = lepton;
     mXAngle = xAngle;
     mXAngleY = 0.000100; // Fixed for IP6
-    mKill == 0;
+    mKill = 0;
 
     // Ensure Beam Energies Correspond to Those Presented in CDR
     if(ion != 275.0 && ion != 110.0 && ion != 100.0 && ion != 41.0) 
