@@ -13,6 +13,8 @@ steerFiles/: Directory containing steering files for the beam energy combination
 
 To run PythiaBeamShape(HepMC).cxx:
 
+Enter eic-shell environment
+
 cmake -S . -B build
 cmake --build build
 

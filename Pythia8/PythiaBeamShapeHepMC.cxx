@@ -74,6 +74,12 @@ int main(int argc, char* argv[])
   TH1D *atan2PxPz2Hist = new TH1D("atan2PxPz2","",2500,-0.01,0.01);
   TH1D *atan2PyPz2Hist = new TH1D("atan2PyPz2","",2500,-0.01,0.01);
 
+  TH2D *vtxYvsX = new TH2D("vtxYvsX","Vertex Y vs X;X [mm];Y [mm]",5000,-5.0,5.0,5000,-5.0,5.0);
+  TH2D *vtxXvsT = new TH2D("vtxXvsT","Vertex X vs T;T [mm];X [mm]",5000,-500.0,500.0,5000,-5.0,5.0);
+  TH2D *vtxXvsZ = new TH2D("vtxXvsZ","Vertex X vs Z;Z [mm];X [mm]",5000,-500.0,500.0,5000,-5.0,5.0);
+  TH2D *vtxYvsZ = new TH2D("vtxYvsZ","Vertex Y vs Z;Z [mm];Y [mm]",5000,-500.0,500.0,5000,-5.0,5.0);
+  TH2D *vtxTvsZ = new TH2D("vtxTvsZ","Interaction Time Vs Z-vertex;Z [mm];T [mm]",5000,-500.0,500.0,5000,-500.0,500.0);
+
 
   // Interface for conversion from Pythia8::Event to HepMC event.
   HepMC3::Pythia8ToHepMC3 topHepMC;
@@ -120,6 +126,12 @@ int main(int argc, char* argv[])
       atan2PyPz1Hist->Fill(TMath::ATan2(p8.process[1].py(),p8.process[1].pz()));
       atan2PxPz2Hist->Fill(TMath::ATan2(p8.process[2].px(),(-1.0)*p8.process[2].pz()));
       atan2PyPz2Hist->Fill(TMath::ATan2(p8.process[2].py(),(-1.0)*p8.process[2].pz()));
+
+      vtxYvsX->Fill(p8.process[0].xProd(),p8.process[0].yProd());
+      vtxXvsT->Fill(p8.process[0].tProd(),p8.process[0].xProd());
+      vtxXvsZ->Fill(p8.process[0].zProd(),p8.process[0].xProd());
+      vtxYvsZ->Fill(p8.process[0].zProd(),p8.process[0].yProd());
+      vtxTvsZ->Fill(p8.process[0].zProd(),p8.process[0].tProd());
 
       // Four-momenta of proton, electron, virtual photon/Z^0/W^+-.
       Pythia8::Vec4 pProton = event[1].p();
