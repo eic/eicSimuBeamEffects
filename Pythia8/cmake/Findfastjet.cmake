@@ -3,6 +3,8 @@
 # This module defines the `FastJet` imported target that encodes all
 # necessary information in its target properties.
 
+include(FindPackageHandleStandardArgs)
+
 find_library(fastjet_LIBRARY
   NAMES fastjet
   PATHS /opt/local/lib 
