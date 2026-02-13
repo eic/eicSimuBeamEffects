@@ -3,6 +3,8 @@
 # This module defines the `Pythia8` imported target that encodes all
 # necessary information in its target properties.
 
+include(FindPackageHandleStandardArgs)
+
 find_library(Pythia8_LIBRARY
   NAMES pythia8
   PATHS /opt/local/lib 
