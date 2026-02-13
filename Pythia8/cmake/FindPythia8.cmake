@@ -5,12 +5,30 @@
 
 include(FindPackageHandleStandardArgs)
 
+find_program(PYTHIA8_CONFIG_EXECUTABLE NAMES pythia8-config)
+
+if(PYTHIA8_CONFIG_EXECUTABLE)
+    execute_process(
+        COMMAND ${PYTHIA8_CONFIG_EXECUTABLE} --libdir
+        OUTPUT_VARIABLE PYTHIA8_LIB_HINT
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+    )
+
+    execute_process(
+        COMMAND ${PYTHIA8_CONFIG_EXECUTABLE} --includedir
+        OUTPUT_VARIABLE PYTHIA8_INCLUDE_HINT
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+    )
+endif()
+
 find_library(Pythia8_LIBRARY
   NAMES pythia8
-  PATHS /opt/local/lib 
+  HINTS ${PYTHIA8_LIB_HINT}
+  PATHS /opt/local/lib
   DOC "The Pythia8 library")
 find_path(Pythia8_INCLUDE_DIR
   NAMES Pythia8/Pythia.h
+  HINTS ${PYTHIA8_INCLUDE_HINT}
   PATHS /opt/local/include
   DOC "The Pythia8 include directory")
 
