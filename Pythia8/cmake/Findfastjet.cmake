@@ -5,12 +5,24 @@
 
 include(FindPackageHandleStandardArgs)
 
+find_program(fastjet_CONFIG_EXECUTABLE NAMES fastjet-config)
+
+if(fastjet_CONFIG_EXECUTABLE)
+    execute_process(
+        COMMAND ${fastjet_CONFIG_EXECUTABLE} --prefix
+        OUTPUT_VARIABLE fastjet_PREFIX
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+    )
+endif()
+
 find_library(fastjet_LIBRARY
   NAMES fastjet
+  HINTS ${fastjet_PREFIX}/lib
   PATHS /opt/local/lib 
   DOC "The fastjet library")
 find_path(fastjet_INCLUDE_DIR
   NAMES fastjet
+  HINTS ${fastjet_PREFIX}/include
   PATHS /opt/local/include
   DOC "The fastjet include directory")
 
