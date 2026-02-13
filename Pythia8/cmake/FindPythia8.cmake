@@ -1,0 +1,42 @@
+# Find the Pythia8 includes and libraries.
+#
+# This module defines the `Pythia8` imported target that encodes all
+# necessary information in its target properties.
+
+include(FindPackageHandleStandardArgs)
+
+find_program(PYTHIA8_CONFIG_EXECUTABLE NAMES pythia8-config)
+
+if(PYTHIA8_CONFIG_EXECUTABLE)
+    execute_process(
+        COMMAND ${PYTHIA8_CONFIG_EXECUTABLE} --libdir
+        OUTPUT_VARIABLE PYTHIA8_LIB_HINT
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+    )
+
+    execute_process(
+        COMMAND ${PYTHIA8_CONFIG_EXECUTABLE} --includedir
+        OUTPUT_VARIABLE PYTHIA8_INCLUDE_HINT
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+    )
+endif()
+
+find_library(Pythia8_LIBRARY
+  NAMES pythia8
+  HINTS ${PYTHIA8_LIB_HINT}
+  PATHS /opt/local/lib
+  DOC "The Pythia8 library")
+find_path(Pythia8_INCLUDE_DIR
+  NAMES Pythia8/Pythia.h
+  HINTS ${PYTHIA8_INCLUDE_HINT}
+  PATHS /opt/local/include
+  DOC "The Pythia8 include directory")
+
+find_package_handle_standard_args(Pythia8
+  REQUIRED_VARS Pythia8_LIBRARY Pythia8_INCLUDE_DIR)
+
+add_library(Pythia8 SHARED IMPORTED)
+set_property(TARGET Pythia8 PROPERTY IMPORTED_LOCATION ${Pythia8_LIBRARY})
+set_property(TARGET Pythia8 PROPERTY INTERFACE_INCLUDE_DIRECTORIES ${Pythia8_INCLUDE_DIR})
+
+mark_as_advanced(Pythia8_FOUND Pythia8_INCLUDE_DIR Pythia8_LIBRARY)
