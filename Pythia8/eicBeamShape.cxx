@@ -18,27 +18,39 @@ eicBeamShape::eicBeamShape(int config, double ion, double lepton, double xAngle)
     mKill = 0;
 
     // Ensure Beam Energies Correspond to Those Presented in CDR
-    if(ion != 275.0 && ion != 110.0 && ion != 100.0 && ion != 41.0) 
+    if(ion != 275.0 && ion != 110.0 && ion != 100.0 && ion != 41.0 && ion != 250.0 && ion != 130.0) // Add 250.0 and 130.0 for early science (May 2026)
       {
 	cout << ion << " is not a valid Hadron Beam Energy!!" << endl;
 	cout << "Valid Energies are 275.0, 110.0, 100.0, and 41.0" << endl;
+	cout << "Valid Early Science Energies are 250.0 and 130.0" << endl;
 	cout << "Turning off all beam effects" << endl;
 	mKill = 1;
       }
-    if(lepton != 18.0 && lepton != 10.0 && lepton != 5.0) 
+    if(lepton != 18.0 && lepton != 10.0 && lepton != 9.0 && lepton != 5.0) 
       {
 	cout << lepton << " is not a valid Lepton Beam Energy!!" << endl;
 	cout << "Valid Energies are 18.0, 10.0, and 5.0" << endl;
+	cout << "Valid Energy includes 9.0" << endl; // Add 9.0 for early science (May 2026)
 	cout << "Turning off all beam effects" << endl;
 	mKill = 1;
       }
 
     // Ensure Beam Energy Combinations Correspond to Those Presented in CDR
-    if(ion == 275.0 && (lepton != 18.0 && lepton != 10.0))
+    if(ion == 275.0 && (lepton != 18.0 && lepton != 10.0 && lepton != 9.0))
       {
 	cout << lepton << "x" << ion << " is not a valid energy combination!!" << endl;
 	cout << "Valid (ep) Combinations are 18x275, 10x275, 10x100, 5x100, and 5x41" << endl;
 	cout << "Valid (eA) Combinations are 18x110, 10x110, 5x110, and 5x41" << endl;
+	cout << "Valid (early science) Combinations includes 9x275" << endl; // Add 9x275 for early science (May 2026)
+	cout << "Turning off all beam effects" << endl;
+	mKill = 1;
+      }
+    if(ion == 250.0 && lepton != 10.0) // Add Early Science Energy (May 2026)
+      {
+	cout << lepton << "x" << ion << " is not a valid energy combination!!" << endl;
+	cout << "Valid (ep) Combinations are 18x275, 10x275, 10x100, 5x100, and 5x41" << endl;
+	cout << "Valid (eA) Combinations are 18x110, 10x110, 5x110, and 5x41" << endl;
+	cout << "Valid (early science) Combinations are 10x250 and 10x130" << endl;
 	cout << "Turning off all beam effects" << endl;
 	mKill = 1;
       }
@@ -47,6 +59,15 @@ eicBeamShape::eicBeamShape(int config, double ion, double lepton, double xAngle)
 	cout << lepton << "x" << ion << " is not a valid energy combination!!" << endl;
 	cout << "Valid (ep) Combinations are 18x275, 10x275, 10x100, 5x100, and 5x41" << endl;
 	cout << "Valid (eA) Combinations are 18x110, 10x110, 5x110, and 5x41" << endl;
+	cout << "Turning off all beam effects" << endl;
+	mKill = 1;
+      }
+    if(ion == 130.0 && (lepton != 10.0 && lepton != 9.0)) // Add Early Science Energy (May 2026)
+      {
+	cout << lepton << "x" << ion << " is not a valid energy combination!!" << endl;
+	cout << "Valid (ep) Combinations are 18x275, 10x275, 10x100, 5x100, and 5x41" << endl;
+	cout << "Valid (eA) Combinations are 18x110, 10x110, 5x110, and 5x41" << endl;
+	cout << "Valid (early science) Combinations are 10x250, 10x130, 9x275, and 9x130" << endl;
 	cout << "Turning off all beam effects" << endl;
 	mKill = 1;
       }
@@ -96,12 +117,15 @@ void eicBeamShape::pick() {
       
       // Set different values depending on energy
       if(mIonBeamEnergy == 275.0) hadronBL = 60.0;
+      if(mIonBeamEnergy == 250.0) hadronBL = 60.0; // Copy 275 parameters to 250 for early science (May 2026)
       if(mIonBeamEnergy == 110.0) hadronBL = 70.0;
+      if(mIonBeamEnergy == 130.0) hadronBL = 70.0; // Copy 100 parameters to 130 for early science (May 2026)
       if(mIonBeamEnergy == 100.0) hadronBL = 70.0;
       if(mIonBeamEnergy == 41.0 && mDivAcc != 3) hadronBL = 75.0;
       if(mIonBeamEnergy == 41.0 && mDivAcc == 3) hadronBL = 116.0; // for eA
       if(mLeptonBeamEnergy == 18.0) leptonBL = 9.0;
       if(mLeptonBeamEnergy == 10.0) leptonBL = 7.0;
+      if(mLeptonBeamEnergy == 9.0)  leptonBL = 7.0; // Copy 10 to 9 for early science (May 2026)
       if(mLeptonBeamEnergy == 5.0)  leptonBL = 7.0;
       
       // Set particle positions
@@ -264,12 +288,17 @@ void eicBeamShape::pick() {
       double betaStarHad = 0.; // In horizontal direction
 
       if(mIonBeamEnergy == 275.0) betaCrabHad = 1300000.0;
+      if(mIonBeamEnergy == 250.0) betaCrabHad = 1300000.0; // Copy 275 to 250 for early science (May 2026)
       if(mIonBeamEnergy == 110.0) betaCrabHad = 500000.0; // Estimate
+      if(mIonBeamEnergy == 130.0) betaCrabHad = 500000.0; // Copy 100 to 130 for early science (May 2026)
       if(mIonBeamEnergy == 100.0) betaCrabHad = 500000.0;
       if(mIonBeamEnergy == 41.0)  betaCrabHad = 200000.0;
       if(mDivAcc == 1) // High Divergence Config - CDR Table 3.3
 	{
 	  if(mIonBeamEnergy == 275.0) betaStarHad = 800.0;
+	  if(mIonBeamEnergy == 250.0) betaStarHad = 800.0; // Copy 275 to 250 for early science (May 2026)
+	  if(mIonBeamEnergy == 130.0 && mLeptonBeamEnergy == 10.0) betaStarHad = 630.0; // Copy 10x100 to 10x130 for early science (May 2026)
+	  if(mIonBeamEnergy == 130.0 && mLeptonBeamEnergy == 9.0)  betaStarHad = 630.0; // Copy 10x100 to 9x130 for early science (May 2026)
 	  if(mIonBeamEnergy == 100.0 && mLeptonBeamEnergy == 10.0) betaStarHad = 630.0; // For root[s] = 63.2
 	  if(mIonBeamEnergy == 100.0 && mLeptonBeamEnergy == 5.0)  betaStarHad = 610.0; // For root[s] = 44.7
 	  if(mIonBeamEnergy == 41.0)  betaStarHad = 900.0;
@@ -278,6 +307,10 @@ void eicBeamShape::pick() {
 	{
 	  if(mIonBeamEnergy == 275.0 && mLeptonBeamEnergy == 18.0) betaStarHad = 4170.0; // For root[s] = 140.7
 	  if(mIonBeamEnergy == 275.0 && mLeptonBeamEnergy == 10.0) betaStarHad = 2650.0; // For root[s] = 104.9
+	  if(mIonBeamEnergy == 275.0 && mLeptonBeamEnergy == 9.0)  betaStarHad = 2650.0; // Copy 10x275 to 9x275 for early science (May 2026)
+	  if(mIonBeamEnergy == 250.0 && mLeptonBeamEnergy == 10.0) betaStarHad = 2650.0; // Copy 10x275 to 10x250 for early science (May 2026)
+	  if(mIonBeamEnergy == 130.0 && mLeptonBeamEnergy == 10.0) betaStarHad = 940.0; // Copy 10x100 to 10x130 for early science (May 2026)
+	  if(mIonBeamEnergy == 130.0 && mLeptonBeamEnergy == 9.0)  betaStarHad = 940.0; // Copy 10x100 to 9x130 for early science (May 2026)
 	  if(mIonBeamEnergy == 100.0 && mLeptonBeamEnergy == 10.0) betaStarHad = 940.0; // For root[s] = 63.2
 	  if(mIonBeamEnergy == 100.0 && mLeptonBeamEnergy == 5.0)  betaStarHad = 800.0; // For root[s] = 44.7
 	  if(mIonBeamEnergy == 41.0 && mLeptonBeamEnergy == 5.0)   betaStarHad = 900.0; // For root[s] = 28.6
@@ -292,11 +325,16 @@ void eicBeamShape::pick() {
       double betaStarLep = 0.;
       if(mLeptonBeamEnergy == 18.0) betaCrabLep = 150000.0;
       if(mLeptonBeamEnergy == 10.0) betaCrabLep = 150000.0;
+      if(mLeptonBeamEnergy == 9.0)  betaCrabLep = 150000.0;
       if(mLeptonBeamEnergy == 5.0)  betaCrabLep = 150000.0;
       if(mDivAcc == 1) // High Divergence Config - CDR Table 3.3
 	{
 	  if(mLeptonBeamEnergy == 18.0) betaStarLep = 590.0;
 	  if(mLeptonBeamEnergy == 10.0 && mIonBeamEnergy == 275.0) betaStarLep = 450.0; // For root[s] = 104.9
+	  if(mLeptonBeamEnergy == 9.0 && mIonBeamEnergy == 275.0)  betaStarLep = 450.0; // Copy 10x275 to 9x275 
+	  if(mLeptonBeamEnergy == 10.0 && mIonBeamEnergy == 250.0) betaStarLep = 450.0; // Copy 10x275 to 10x250 for early science (May 2026)
+	  if(mLeptonBeamEnergy == 10.0 && mIonBeamEnergy == 130.0) betaStarLep = 960.0; // Copy 10x100 to 10x130 for early science (May 2026)
+	  if(mLeptonBeamEnergy == 9.0 && mIonBeamEnergy == 130.0)  betaStarLep = 960.0; // Copy 10x100 to 9x130 for early science (May 2026)
 	  if(mLeptonBeamEnergy == 10.0 && mIonBeamEnergy == 100.0) betaStarLep = 960.0; // For root[s] = 63.2
 	  if(mLeptonBeamEnergy == 5.0 && mIonBeamEnergy == 100.0)  betaStarLep = 780.0; // For root[s] = 44.7
 	  if(mLeptonBeamEnergy == 5.0 && mIonBeamEnergy == 41.0)   betaStarLep = 1960.0; // For root[s] = 28.6
@@ -305,6 +343,10 @@ void eicBeamShape::pick() {
 	{
 	  if(mLeptonBeamEnergy == 18.0) betaStarLep = 3060.0;
 	  if(mLeptonBeamEnergy == 10.0 && mIonBeamEnergy == 275.0) betaStarLep = 1490.0; // For root[s] = 104.9
+	  if(mLeptonBeamEnergy == 9.0 && mIonBeamEnergy == 275.0)  betaStarLep = 1490.0; // Copy 10x275 to 9x275 for early science (May 2026)
+	  if(mLeptonBeamEnergy == 10.0 && mIonBeamEnergy == 250.0) betaStarLep = 1490.0; // Copy 10x275 to 10x250 for early science (May 2026)
+	  if(mLeptonBeamEnergy == 10.0 && mIonBeamEnergy == 130.0) betaStarLep = 1430.0; // Copy 10x100 to 10x130 for early science (May 2026)
+	  if(mLeptonBeamEnergy == 9.0 && mIonBeamEnergy == 130.0)  betaStarLep = 1430.0; // Copy 10x100 to 9x130 for early science (May 2026)
 	  if(mLeptonBeamEnergy == 10.0 && mIonBeamEnergy == 100.0) betaStarLep = 1430.0; // For root[s] = 63.2
 	  if(mLeptonBeamEnergy == 5.0 && mIonBeamEnergy == 100.0)  betaStarLep = 1030.0; // For root[s] = 44.7
 	  if(mLeptonBeamEnergy == 5.0 && mIonBeamEnergy == 41.0)   betaStarLep = 1960.0; // For root[s] = 28.6 
@@ -366,7 +408,7 @@ void eicBeamShape::pick() {
 	}
       if(mDivAcc == 3) localKill = 1;
     }
-  if(mIonBeamEnergy == 275.0 && mLeptonBeamEnergy == 10.0)
+  if((mIonBeamEnergy == 275.0 && mLeptonBeamEnergy == 10.0) || (mIonBeamEnergy == 250.0 && mLeptonBeamEnergy == 10.0) || (mIonBeamEnergy == 275.0 && mLeptonBeamEnergy == 9.0)) // Add 10x250 and 9x275 for early science (May 2026)
     {
       if(mDivAcc == 1)
 	{
@@ -426,7 +468,7 @@ void eicBeamShape::pick() {
 	  if(sigmaVertexX != 0.175 || sigmaVertexY != 0.011) localKill = 1;
 	}
     }
-  if(mIonBeamEnergy == 100.0 && mLeptonBeamEnergy == 10.0)
+  if((mIonBeamEnergy == 100.0 && mLeptonBeamEnergy == 10.0) || (mIonBeamEnergy == 130.0 && mLeptonBeamEnergy == 10.0) || (mIonBeamEnergy == 130.0 && mLeptonBeamEnergy == 9.0)) // Add 10x130 adn 9x130 for early science (May 2026)
     {
       if(mDivAcc == 1)
 	{
