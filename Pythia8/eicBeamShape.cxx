@@ -468,7 +468,7 @@ void eicBeamShape::pick() {
 	  if(sigmaVertexX != 0.175 || sigmaVertexY != 0.011) localKill = 1;
 	}
     }
-  if((mIonBeamEnergy == 100.0 && mLeptonBeamEnergy == 10.0) || (mIonBeamEnergy == 130.0 && mLeptonBeamEnergy == 10.0) || (mIonBeamEnergy == 130.0 && mLeptonBeamEnergy == 9.0)) // Add 10x130 adn 9x130 for early science (May 2026)
+  if((mIonBeamEnergy == 100.0 && mLeptonBeamEnergy == 10.0) || (mIonBeamEnergy == 130.0 && mLeptonBeamEnergy == 10.0) || (mIonBeamEnergy == 130.0 && mLeptonBeamEnergy == 9.0)) // Add 10x130 and 9x130 for early science (May 2026)
     {
       if(mDivAcc == 1)
 	{
