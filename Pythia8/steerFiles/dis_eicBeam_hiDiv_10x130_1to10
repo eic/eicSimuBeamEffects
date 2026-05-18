@@ -1,5 +1,5 @@
 ! Steering file for LO DIS with realistic EIC beam parameters
-! 5x100 in High Divergence Mode
+! 10x130 in High Divergence Mode
 ! See CDR Table 3.3
 
 Main:numberOfEvents = 1000000
@@ -11,20 +11,20 @@ Beams:frameType = 2
 Beams:idA = 2212
 Beams:idB = 11
 
-Beams:eA = 100
-Beams:eB = 5
+Beams:eA = 130
+Beams:eB = 10
 
 Beams:allowMomentumSpread = on
-Beams:sigmapxA = 0.000206
-Beams:sigmapyA = 0.000206
+Beams:sigmapxA = 0.000220
+Beams:sigmapyA = 0.000220
 Beams:sigmapzA = 0.00097
 
-Beams:sigmapxB = 0.000160
-Beams:sigmapyB = 0.000160
-Beams:sigmapzB = 0.00068
+Beams:sigmapxB = 0.000145
+Beams:sigmapyB = 0.000105
+Beams:sigmapzB = 0.00058
 
 Beams:allowVertexSpread = on
-Beams:sigmaVertexX = 0.088
+Beams:sigmaVertexX = 0.098
 Beams:sigmaVertexY = 0.008
 Beams:sigmaVertexZ = 0.0
 
@@ -56,9 +56,10 @@ TimeShower:QEDshowerByL = off
 !
 ! PhaseSpace:pTHatMin = 1.0
 ! PhaseSpace:pTHatMinDiverge = 0.5
-PhaseSpace:mHatMin = 1.0
-PhaseSpace:pTHatMinDiverge = force 0.45
-PhaseSpace:Q2Min = 10.0
+PhaseSpace:mHatMin = 0.0
+PhaseSpace:pTHatMinDiverge = force 0.01
+PhaseSpace:Q2Min = 1.0
+PhaseSpace:Q2Max = 10.0
 
 
 ! Hadronization and Radiation Settings
