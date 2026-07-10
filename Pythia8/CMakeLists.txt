@@ -58,6 +58,7 @@ target_include_directories( ${PYTHIA_EXE} PRIVATE ${FASTJET_INCLUDE_DIRS} )
 target_link_libraries( ${PYTHIA_EXE} PRIVATE ${FASTJET_LIBRARIES} HepMC3::HepMC3 HepMC3::rootIO ROOT::Core ROOT::Hist ROOT::RIO ROOT::MathCore ${ROOT_LIBRARIES} ${BEAM_LIB} )
 
 add_executable( ${PYTHIAHEPMC_EXE} ${PYTHIAHEPMC_SRC} )
+target_include_directories( ${PYTHIAHEPMC_EXE} PRIVATE ${PYTHIA8_INCLUDE_DIRS} )
 target_link_libraries( ${PYTHIAHEPMC_EXE} PRIVATE HepMC3::HepMC3 HepMC3::rootIO ROOT::Core ROOT::Hist ROOT::RIO ROOT::MathCore ${ROOT_LIBRARIES} ${BEAM_LIB} )
 
 install(TARGETS ${BEAM_LIB} LIBRARY)
