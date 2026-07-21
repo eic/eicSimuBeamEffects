@@ -62,12 +62,12 @@ eicBeamShape::eicBeamShape(int config, double ion, double lepton, double xAngle)
 	cout << "Turning off all beam effects" << endl;
 	mKill = 1;
       }
-    if(ion == 130.0 && (lepton != 10.0 && lepton != 9.0)) // Add Early Science Energy (May 2026)
+    if(ion == 130.0 && (lepton != 10.0 && lepton != 9.0 && lepton != 5.0)) // Add Early Science Energy (May 2026) Add 5x130 by request of Inclusive group
       {
 	cout << lepton << "x" << ion << " is not a valid energy combination!!" << endl;
 	cout << "Valid (ep) Combinations are 18x275, 10x275, 10x100, 5x100, and 5x41" << endl;
 	cout << "Valid (eA) Combinations are 18x110, 10x110, 5x110, and 5x41" << endl;
-	cout << "Valid (early science) Combinations are 10x250, 10x130, 9x275, and 9x130" << endl;
+	cout << "Valid (early science) Combinations are 10x250, 10x130, 9x275, and 9x130 and 5x130" << endl;
 	cout << "Turning off all beam effects" << endl;
 	mKill = 1;
       }
@@ -299,6 +299,7 @@ void eicBeamShape::pick() {
 	  if(mIonBeamEnergy == 250.0) betaStarHad = 800.0; // Copy 275 to 250 for early science (May 2026)
 	  if(mIonBeamEnergy == 130.0 && mLeptonBeamEnergy == 10.0) betaStarHad = 630.0; // Copy 10x100 to 10x130 for early science (May 2026)
 	  if(mIonBeamEnergy == 130.0 && mLeptonBeamEnergy == 9.0)  betaStarHad = 630.0; // Copy 10x100 to 9x130 for early science (May 2026)
+	  if(mIonBeamEnergy == 130.0 && mLeptonBeamEnergy == 5.0)  betaStarHad = 610.0; // Copy 5x100 to 5x130 for inclusive request (July 2026)
 	  if(mIonBeamEnergy == 100.0 && mLeptonBeamEnergy == 10.0) betaStarHad = 630.0; // For root[s] = 63.2
 	  if(mIonBeamEnergy == 100.0 && mLeptonBeamEnergy == 5.0)  betaStarHad = 610.0; // For root[s] = 44.7
 	  if(mIonBeamEnergy == 41.0)  betaStarHad = 900.0;
@@ -311,6 +312,7 @@ void eicBeamShape::pick() {
 	  if(mIonBeamEnergy == 250.0 && mLeptonBeamEnergy == 10.0) betaStarHad = 2650.0; // Copy 10x275 to 10x250 for early science (May 2026)
 	  if(mIonBeamEnergy == 130.0 && mLeptonBeamEnergy == 10.0) betaStarHad = 940.0; // Copy 10x100 to 10x130 for early science (May 2026)
 	  if(mIonBeamEnergy == 130.0 && mLeptonBeamEnergy == 9.0)  betaStarHad = 940.0; // Copy 10x100 to 9x130 for early science (May 2026)
+	  if(mIonBeamEnergy == 130.0 && mLeptonBeamEnergy == 5.0)  betaStarHad = 800.0; // Copy 5x100 to 5x130 for inclusive request (July 2026)
 	  if(mIonBeamEnergy == 100.0 && mLeptonBeamEnergy == 10.0) betaStarHad = 940.0; // For root[s] = 63.2
 	  if(mIonBeamEnergy == 100.0 && mLeptonBeamEnergy == 5.0)  betaStarHad = 800.0; // For root[s] = 44.7
 	  if(mIonBeamEnergy == 41.0 && mLeptonBeamEnergy == 5.0)   betaStarHad = 900.0; // For root[s] = 28.6
@@ -335,6 +337,7 @@ void eicBeamShape::pick() {
 	  if(mLeptonBeamEnergy == 10.0 && mIonBeamEnergy == 250.0) betaStarLep = 450.0; // Copy 10x275 to 10x250 for early science (May 2026)
 	  if(mLeptonBeamEnergy == 10.0 && mIonBeamEnergy == 130.0) betaStarLep = 960.0; // Copy 10x100 to 10x130 for early science (May 2026)
 	  if(mLeptonBeamEnergy == 9.0 && mIonBeamEnergy == 130.0)  betaStarLep = 960.0; // Copy 10x100 to 9x130 for early science (May 2026)
+	  if(mLeptonBeamEnergy == 5.0 && mIonBeamEnergy == 130.0)  betaStarLep = 780.0; // Copy 5x100 to 5x130 for inclusive request (July 2026)
 	  if(mLeptonBeamEnergy == 10.0 && mIonBeamEnergy == 100.0) betaStarLep = 960.0; // For root[s] = 63.2
 	  if(mLeptonBeamEnergy == 5.0 && mIonBeamEnergy == 100.0)  betaStarLep = 780.0; // For root[s] = 44.7
 	  if(mLeptonBeamEnergy == 5.0 && mIonBeamEnergy == 41.0)   betaStarLep = 1960.0; // For root[s] = 28.6
@@ -347,6 +350,7 @@ void eicBeamShape::pick() {
 	  if(mLeptonBeamEnergy == 10.0 && mIonBeamEnergy == 250.0) betaStarLep = 1490.0; // Copy 10x275 to 10x250 for early science (May 2026)
 	  if(mLeptonBeamEnergy == 10.0 && mIonBeamEnergy == 130.0) betaStarLep = 1430.0; // Copy 10x100 to 10x130 for early science (May 2026)
 	  if(mLeptonBeamEnergy == 9.0 && mIonBeamEnergy == 130.0)  betaStarLep = 1430.0; // Copy 10x100 to 9x130 for early science (May 2026)
+	  if(mLeptonBeamEnergy == 5.0 && mIonBeamEnergy == 130.0)  betaStarLep = 1030.0; // Copy 5x100 to 5x130 for inclusive request (July 2026)
 	  if(mLeptonBeamEnergy == 10.0 && mIonBeamEnergy == 100.0) betaStarLep = 1430.0; // For root[s] = 63.2
 	  if(mLeptonBeamEnergy == 5.0 && mIonBeamEnergy == 100.0)  betaStarLep = 1030.0; // For root[s] = 44.7
 	  if(mLeptonBeamEnergy == 5.0 && mIonBeamEnergy == 41.0)   betaStarLep = 1960.0; // For root[s] = 28.6 
@@ -484,7 +488,7 @@ void eicBeamShape::pick() {
 	}
       if(mDivAcc == 3) localKill = 1;
     }
-  if(mIonBeamEnergy == 100.0 && mLeptonBeamEnergy == 5.0)
+  if((mIonBeamEnergy == 100.0 && mLeptonBeamEnergy == 5.0) || (mIonBeamEnergy == 130.0 && mLeptonBeamEnergy == 5.0)) // Add 5x130 for inclusive request (July 2026)
     {
       if(mDivAcc == 1)
 	{
