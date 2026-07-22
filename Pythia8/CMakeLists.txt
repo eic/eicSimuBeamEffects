@@ -5,7 +5,7 @@ cmake_minimum_required(VERSION 3.20)
 # must be set before project(...) call; version module is needed before
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
-project(pythiaBeamEffects VERSION 1.0.0)
+project(pythiaBeamEffects VERSION 1.0.0 LANGUAGES CXX)
 
 # Set C++ standard
 set(CMAKE_CXX_STANDARD 20)
